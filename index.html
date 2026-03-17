@@ -805,14 +805,16 @@
   .rank-item[data-rank="4"] .rank-badge,
   .rank-item[data-rank="5"] .rank-badge { background: #D97706; }
   .rank-item[data-rank="6"] .rank-badge,
-  .rank-item[data-rank="7"] .rank-badge { background: #94a3b8; }
+  .rank-item[data-rank="7"] .rank-badge,
+  .rank-item[data-rank="8"] .rank-badge { background: #94a3b8; }
   .rank-item.feas-item[data-rank="1"] .rank-badge,
   .rank-item.feas-item[data-rank="2"] .rank-badge,
   .rank-item.feas-item[data-rank="3"] .rank-badge { background: #059669; }
   .rank-item.feas-item[data-rank="4"] .rank-badge,
   .rank-item.feas-item[data-rank="5"] .rank-badge { background: #D97706; }
   .rank-item.feas-item[data-rank="6"] .rank-badge,
-  .rank-item.feas-item[data-rank="7"] .rank-badge { background: #94a3b8; }
+  .rank-item.feas-item[data-rank="7"] .rank-badge,
+  .rank-item.feas-item[data-rank="8"] .rank-badge { background: #94a3b8; }
   .group-tabs {
     display: flex; gap: 0; margin-bottom: 20px;
     background: var(--white); border: 1.5px solid var(--border);
@@ -896,7 +898,7 @@
   <div class="app-body">
     <div class="section-intro">
       <h1>Please rate the Value and Feasibility / Speed of implementation for these levers</h1>
-      <p>Use the tabs below to rank all 7 levers by <strong>Value</strong> and then by <strong>Feasibility / Speed</strong> — drag each lever to the position that reflects your view.</p>
+      <p>Use the tabs below to rank all 8 levers by <strong>Value</strong> and then by <strong>Feasibility / Speed</strong> — drag each lever to the position that reflects your view.</p>
       <div class="group-tabs" style="margin-top:16px">
         <button class="group-tab active val" id="gtab-val" onclick="switchGroup('val')">💰 Value</button>
         <button class="group-tab feas" id="gtab-feas" onclick="switchGroup('feas')">⚡ Feasibility / Speed</button>
@@ -1090,7 +1092,7 @@ const SB_URL = "https://wxlslgvvjgouqksvoacm.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bHNsZ3Z2amdvdXFrc3ZvYWNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDE1NTksImV4cCI6MjA4OTI3NzU1OX0.qTgY7DJlIvAJ0zItKet_QPy2EmCSA_Nghhp5KCUY9ng";
 
 // Table name — ensure this exists in your Supabase project
-const TABLE = "lever_votes_v2";
+const TABLE = "lever_votes_v2"; // NOTE: Supabase lever_id CHECK constraint must be updated to BETWEEN 1 AND 8
 
 // ── LEVERS ──────────────────────────────────────────────────────────────────
 const LEVERS = [
@@ -1100,7 +1102,8 @@ const LEVERS = [
   { id: 4, name: "Skillset of the future",          emoji: "🎓", origin: "Mistral + FoW Lab",   val_breadth: "All processes",  val_depth: "Incremental",    feas_summary_static: "High",   feas_dependencies: "Low: Aligns to Butterfly & TranSCend post-deployment",      feas_risks: "Low: Regional variation may require local adaptation", feas_time: "Immediate: Competency models target Q2 2026"      },
   { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", origin: "Mistral + Kearney",   val_breadth: "All processes",  val_depth: "Transformative", feas_summary_static: "Low",    feas_dependencies: "High: Butterfly CRM is backbone; KMS & TranSCend required", feas_risks: "High: Significant investment to customize JJCC/MSD into SPOG", feas_time: "Long-term: Desktop MVP targeted Q2 2027"         },
   { id: 6, name: "Centralized KMS",                 emoji: "📚", origin: "Mistral + Kearney",   val_breadth: "Most processes", val_depth: "Step-change",    feas_summary_static: "High",   feas_dependencies: "Moderate: Requires SharePoint/Confluence & Genesys integration", feas_risks: "Low: Weak governance could degrade KMS effectiveness", feas_time: "Immediate: Top 50 SOPs & Copilot target Q2–Q3 2026" },
-  { id: 7, name: "Dynamic Routing and Capacity",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most processes", val_depth: "Incremental",    feas_summary_static: "Medium", feas_dependencies: "High: Routing requires Genesys & Butterfly integration",    feas_risks: "Moderate: Misrouting risk if customer intent assessed incorrectly", feas_time: "Medium-term: Skill taxonomy & pilot target end Q3 2026" },
+  { id: 7, name: "Dynamic Routing and Capacity",         emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most processes", val_depth: "Incremental",    feas_summary_static: "Medium", feas_dependencies: "High: Routing requires Genesys & Butterfly integration",    feas_risks: "Moderate: Misrouting risk if customer intent assessed incorrectly", feas_time: "Medium-term: Skill taxonomy & pilot target end Q3 2026" },
+  { id: 8, name: "KPI-Oriented Performance Mgmt",        emoji: "📊", origin: "Mistral + FoW Lab",   val_breadth: "All processes",  val_depth: "Step-change",    feas_summary_static: "High",   feas_dependencies: "Moderate: CRM & Genesys data primary source for metrics",   feas_risks: "Moderate: Misaligned incentives could reduce CSR morale", feas_time: "Immediate: Global KPI framework target Q2 2026" },
 ];
 
 const COLS = [
@@ -1217,8 +1220,8 @@ const SUMMARY_SORT = { "High": 0, "Medium": 1, "Low": 2 };
 
 const rankOrder = {
   val:  [...LEVERS].sort((a, b) => {
-    const aLabel = ["High","High","Medium","Low","High","Medium","High"][a.id - 1];
-    const bLabel = ["High","High","Medium","Low","High","Medium","High"][b.id - 1];
+    const aLabel = ["High","High","Medium","Low","High","Medium","High","Medium"][a.id - 1];
+    const bLabel = ["High","High","Medium","Low","High","Medium","High","Medium"][b.id - 1];
     return (SUMMARY_SORT[aLabel] ?? 1) - (SUMMARY_SORT[bLabel] ?? 1) || a.id - b.id;
   }).map(l => l.id),
   feas: [...LEVERS].sort((a, b) =>
@@ -1245,7 +1248,7 @@ function buildRankList(group) {
     const rank = idx + 1;
 
     const summaryLabel = isVal
-      ? ["High","High","Medium","Low","High","Medium","High"][lever.id - 1]
+      ? ["High","High","Medium","Low","High","Medium","High","Medium"][lever.id - 1]
       : lever.feas_summary_static;
 
     const tagClass = getRankTagClass(summaryLabel);
@@ -1374,7 +1377,7 @@ async function loadMyVotes() {
   ["val","feas"].forEach(group => {
     const colKey = group === "val" ? "rank_val" : "rank_feas";
     const rankRows = rows.filter(r => r.col_key === colKey);
-    if (rankRows.length === 7) {
+    if (rankRows.length === LEVERS.length) {
       const sorted = rankRows.sort((a,b) => parseInt(a.value) - parseInt(b.value));
       rankOrder[group] = sorted.map(r => parseInt(r.lever_id)); // ensure integer type
       userHasDragged[group] = true; // mark as previously submitted
@@ -1622,7 +1625,7 @@ function drawMatrix(rows) {
     "Immediate": 3, "Medium-term": 2, "Long-term": 1
   };
   const staticLabels = {
-    val:  ["High","High","Medium","Low","High","Medium","High"],
+    val:  ["High","High","Medium","Low","High","Medium","High","Medium"],
     feas: LEVERS.map(l => l.feas_summary_static),
   };
 
@@ -1640,9 +1643,9 @@ function drawMatrix(rows) {
     const avgValRank  = valRankRows.length  ? valRankRows.reduce((s,r)  => s + parseInt(r.value), 0) / valRankRows.length  : null;
     const avgFeasRank = feasRankRows.length ? feasRankRows.reduce((s,r) => s + parseInt(r.value), 0) / feasRankRows.length : null;
 
-    // Invert rank (rank1 best → score 7, rank7 worst → score 1), then scale to 1-3
-    const valRankScore  = avgValRank  !== null ? 1 + ((7 - avgValRank)  / 6) * 2 : null;
-    const feasRankScore = avgFeasRank !== null ? 1 + ((7 - avgFeasRank) / 6) * 2 : null;
+    // Invert rank (rank1 best → score N, rankN worst → score 1), then scale to 1-3
+    const valRankScore  = avgValRank  !== null ? 1 + ((LEVERS.length - avgValRank)  / (LEVERS.length - 1)) * 2 : null;
+    const feasRankScore = avgFeasRank !== null ? 1 + ((LEVERS.length - avgFeasRank) / (LEVERS.length - 1)) * 2 : null;
 
     // Composite: 60% label + 40% rank (fall back to label only if no rank data)
     const valAvg  = valRankScore  !== null ? valLabelScore  * 0.6 + valRankScore  * 0.4 : valLabelScore;
