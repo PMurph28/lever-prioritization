@@ -610,10 +610,9 @@
     border-radius: 10px; padding: 12px 16px; font-size: 12px; font-weight: 700;
   }
   .mq-label span { display: block; font-size: 11px; font-weight: 400; color: inherit; opacity: 0.75; margin-top: 3px; }
-  .mq-tl { background: #FFF7ED; color: #92400E; }  /* High feas, Low val */
-  .mq-tr { background: #ECFDF5; color: #065F46; }  /* High feas, High val — star */
-  .mq-bl { background: #FEF2F2; color: #991B1B; }  /* Low feas, Low val */
-  .mq-br { background: #EFF6FF; color: #1e40af; }  /* Low feas, High val */
+  .mq-top { background: #ECFDF5; color: #065F46; grid-column: 1 / -1; }  /* Full width — Quick wins */
+  .mq-bl  { background: #FEF2F2; color: #991B1B; }                        /* Possibility to defer */
+  .mq-br  { background: #EFF6FF; color: #1e40af; }                        /* Big bets */
 
   /* Confetti */
   #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
@@ -641,14 +640,16 @@
     background: #FAFBFC; border-bottom: 1.5px solid var(--border);
     font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
     text-transform: uppercase; color: var(--text-soft);
+    align-items: center;
   }
   .rank-list-header.feas-header {
-    grid-template-columns: 90px 1fr 160px 110px 100px 130px;
+    grid-template-columns: 90px 220px 120px 1fr 1fr 1fr;
   }
   .rank-col-rank    { text-align: center; }
-  .rank-col-lever   { text-align: left; padding-left: 8px; }
-  .rank-col-summary { text-align: center; }
-  .rank-col-bd      { text-align: center; }
+  .rank-col-lever   { text-align: left; padding-left: 16px; }
+  .feas-header .rank-col-lever { text-align: left; padding-left: 16px; }
+  .rank-col-summary { text-align: center; padding: 0; }
+  .rank-col-bd      { text-align: left; }
 
   .rank-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 
@@ -662,7 +663,19 @@
     transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
   }
   .rank-item.feas-item {
-    grid-template-columns: 90px 1fr 160px 110px 100px 130px;
+    grid-template-columns: 90px 220px 120px 1fr 1fr 1fr;
+    align-items: stretch;
+    padding: 14px 8px;
+  }
+  .rank-item.feas-item .rank-summary-tag {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rank-item.feas-item .rank-bd-cell {
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: flex-start; text-align: left;
+  }
+  .rank-item.feas-item .rank-lever-info {
+    display: flex; flex-direction: row; align-items: center;
   }
 
   /* Rank column cell — subtle highlight background */
@@ -671,6 +684,10 @@
     border-right: 1.5px solid var(--border);
     margin: -10px 0; padding: 10px 0;
     border-radius: 10px 0 0 10px;
+  }
+  .rank-item.feas-item > div:first-child {
+    display: flex; align-items: center; justify-content: center;
+    margin: -14px 0; padding: 14px 0;
   }
   .rank-item.val-item  > div:first-child { background: #FFF5F5; border-right-color: #FFD5D5; }
   .rank-item.feas-item > div:first-child { background: #EFF7FF; border-right-color: #BFDBFE; }
@@ -742,13 +759,16 @@
     font-size: 14px; color: #CBD5E1; margin-right: 6px;
     flex-shrink: 0;
   }
-  .rank-lever-info { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+  .rank-lever-info { display: flex; align-items: center; gap: 10px; padding: 0 8px 0 16px; }
+  .feas-item .rank-lever-info { padding: 0 8px 0 4px; justify-content: flex-start; text-align: left; }
+  .feas-item .rank-lever-info > div { text-align: left; }
   .rank-lever-name { font-size: 14px; font-weight: 700; color: var(--text); }
   .rank-lever-origin { font-size: 10px; color: var(--text-soft); font-style: italic; }
 
   .rank-summary-tag {
-    text-align: center; padding: 0 8px;
+    text-align: center; padding: 0; display: flex; align-items: center; justify-content: center;
   }
+  .feas-item .rank-summary-tag { text-align: center; }
   .rank-tag {
     display: inline-block; padding: 4px 10px; border-radius: 20px;
     font-size: 11px; font-weight: 700;
@@ -759,7 +779,13 @@
 
   .rank-bd-cell {
     text-align: center; padding: 0 8px;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    justify-content: center;
+  }
+  .feas-item .rank-bd-cell { align-items: flex-start; text-align: left; }
+  .rank-bd-desc {
+    font-size: 10px; color: var(--text-soft); font-weight: 500;
+    line-height: 1.4; text-align: left; max-width: 160px;
   }
   .rank-bd-tags { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: center; }
   .rank-bd-tag { display: inline-block; padding: 3px 8px; border-radius: 6px;
@@ -1028,10 +1054,9 @@
           <canvas id="matrix-canvas" width="680" height="680"></canvas>
         </div>
         <div class="matrix-quadrant-labels">
-          <div class="mq-label mq-tl">⏳ Quick wins, limited value<span>Immediate · Lower value</span></div>
-          <div class="mq-label mq-tr">⭐ Prioritize now<span>Immediate · High value</span></div>
-          <div class="mq-label mq-bl">🚫 Deprioritize<span>Long-term · Lower value</span></div>
-          <div class="mq-label mq-br">🔬 Strategic bets<span>Long-term · High value</span></div>
+          <div class="mq-label mq-top">⭐ Quick wins<span>Immediate · All value levels</span></div>
+          <div class="mq-label mq-bl">🕐 Possibility to defer<span>Long-term · Lower value</span></div>
+          <div class="mq-label mq-br">🔬 Big bets<span>Long-term · High value</span></div>
         </div>
         <div class="matrix-legend" id="matrix-legend"></div>
       </div>
@@ -1069,13 +1094,13 @@ const TABLE = "lever_votes_v2";
 
 // ── LEVERS ──────────────────────────────────────────────────────────────────
 const LEVERS = [
-  { id: 1, name: "AI Agent handling",               emoji: "🤖", origin: "Mistral + Kearney",   val_breadth: "Org wide",       val_depth: "Most processes", feas_summary_static: "Low",    feas_dependencies: "High",     feas_risks: "Moderate", feas_time: "Long-term"   },
-  { id: 2, name: "Proactive comms",                 emoji: "📣", origin: "Mistral",             val_breadth: "Org wide",       val_depth: "Few processes",  feas_summary_static: "Medium", feas_dependencies: "Moderate", feas_risks: "High",     feas_time: "Medium-term" },
-  { id: 3, name: "OTI fixes",                       emoji: "🔧", origin: "Mistral",             val_breadth: "Less than half", val_depth: "Few processes",  feas_summary_static: "High",   feas_dependencies: "High",     feas_risks: "Low",      feas_time: "Immediate"   },
-  { id: 4, name: "Skillset of the future",          emoji: "🎓", origin: "Mistral + FoW Lab",   val_breadth: "Org wide",       val_depth: "All processes",  feas_summary_static: "High",   feas_dependencies: "Low",      feas_risks: "Low",      feas_time: "Immediate"   },
-  { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", origin: "Mistral + Kearney",   val_breadth: "Org wide",       val_depth: "All processes",  feas_summary_static: "Low",    feas_dependencies: "High",     feas_risks: "High",     feas_time: "Long-term"   },
-  { id: 6, name: "Centralized KMS",                 emoji: "📚", origin: "Mistral + Kearney",   val_breadth: "Org wide",       val_depth: "Most processes", feas_summary_static: "High",   feas_dependencies: "Moderate", feas_risks: "Low",      feas_time: "Medium-term" },
-  { id: 7, name: "Dynamic routing",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most teams",     val_depth: "Most processes", feas_summary_static: "Medium", feas_dependencies: "High",     feas_risks: "Moderate", feas_time: "Medium-term" },
+  { id: 1, name: "AI Agent handling",               emoji: "🤖", origin: "Mistral + Kearney",   val_breadth: "Most processes", val_depth: "Transformative", feas_summary_static: "Low",    feas_dependencies: "High: Requires Butterfly CRM write & TranSCend data",       feas_risks: "Moderate: Limited AI build & deployment experience", feas_time: "Long-term: MVP pilot targeted end Q4 2026"       },
+  { id: 2, name: "Proactive comms",                 emoji: "📣", origin: "Mistral",             val_breadth: "Few processes",  val_depth: "Step-change",    feas_summary_static: "Medium", feas_dependencies: "Moderate: Needs ERP read access & CRM alignment",          feas_risks: "High: Concurrent JJCC, Butterfly, TranSCend execution", feas_time: "Medium-term: Shipment delay pilot target Q3 2026" },
+  { id: 3, name: "OTI fixes",                       emoji: "🔧", origin: "Mistral",             val_breadth: "Few processes",  val_depth: "Incremental",    feas_summary_static: "High",   feas_dependencies: "High: TranSCend stabilizes ERP-layer data integrity",       feas_risks: "Low: Modular build reduces execution risk",          feas_time: "Immediate: Esker & defect fixes target Q3 2026"   },
+  { id: 4, name: "Skillset of the future",          emoji: "🎓", origin: "Mistral + FoW Lab",   val_breadth: "All processes",  val_depth: "Incremental",    feas_summary_static: "High",   feas_dependencies: "Low: Aligns to Butterfly & TranSCend post-deployment",      feas_risks: "Low: Regional variation may require local adaptation", feas_time: "Immediate: Competency models target Q2 2026"      },
+  { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", origin: "Mistral + Kearney",   val_breadth: "All processes",  val_depth: "Transformative", feas_summary_static: "Low",    feas_dependencies: "High: Butterfly CRM is backbone; KMS & TranSCend required", feas_risks: "High: Significant investment to customize JJCC/MSD into SPOG", feas_time: "Long-term: Desktop MVP targeted Q2 2027"         },
+  { id: 6, name: "Centralized KMS",                 emoji: "📚", origin: "Mistral + Kearney",   val_breadth: "Most processes", val_depth: "Step-change",    feas_summary_static: "High",   feas_dependencies: "Moderate: Requires SharePoint/Confluence & Genesys integration", feas_risks: "Low: Weak governance could degrade KMS effectiveness", feas_time: "Immediate: Top 50 SOPs & Copilot target Q2–Q3 2026" },
+  { id: 7, name: "Dynamic routing",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most processes", val_depth: "Incremental",    feas_summary_static: "Medium", feas_dependencies: "High: Routing requires Genesys & Butterfly integration",    feas_risks: "Moderate: Misrouting risk if customer intent assessed incorrectly", feas_time: "Medium-term: Skill taxonomy & pilot target end Q3 2026" },
 ];
 
 const COLS = [
@@ -1232,15 +1257,24 @@ function buildRankList(group) {
     item.draggable = true;
 
     const detailCols = isVal
-      ? `<div class="rank-bd-cell" style="text-align:center">
+      ? `<div class="rank-bd-cell" style="align-items:flex-start;text-align:left">
            <span class="rank-bd-tag">${lever.val_breadth}</span>
          </div>
-         <div class="rank-bd-cell" style="text-align:center">
+         <div class="rank-bd-cell" style="align-items:flex-start;text-align:left">
            <span class="rank-bd-tag">${lever.val_depth}</span>
          </div>`
-      : `<div class="rank-bd-cell"><span class="rank-bd-tag ${getRankTagClass(lever.feas_dependencies)}-dep">${lever.feas_dependencies}</span></div>
-         <div class="rank-bd-cell"><span class="rank-bd-tag ${getRankTagClass(lever.feas_risks)}-dep">${lever.feas_risks}</span></div>
-         <div class="rank-bd-cell"><span class="rank-bd-tag time-tag">${lever.feas_time}</span></div>`;
+      : `<div class="rank-bd-cell" style="align-items:flex-start;text-align:left">
+           <span class="rank-bd-tag ${getRankTagClass(lever.feas_dependencies.split(':')[0].trim())}-dep">${lever.feas_dependencies.split(':')[0].trim()}</span>
+           <span class="rank-bd-desc">${lever.feas_dependencies.split(':').slice(1).join(':').trim()}</span>
+         </div>
+         <div class="rank-bd-cell" style="align-items:flex-start;text-align:left">
+           <span class="rank-bd-tag ${getRankTagClass(lever.feas_risks.split(':')[0].trim())}-dep">${lever.feas_risks.split(':')[0].trim()}</span>
+           <span class="rank-bd-desc">${lever.feas_risks.split(':').slice(1).join(':').trim()}</span>
+         </div>
+         <div class="rank-bd-cell" style="align-items:flex-start;text-align:left">
+           <span class="rank-bd-tag time-tag">${lever.feas_time.split(':')[0].trim()}</span>
+           <span class="rank-bd-desc">${lever.feas_time.split(':').slice(1).join(':').trim()}</span>
+         </div>`;
 
     item.innerHTML = `
       <div style="text-align:center">
@@ -1573,7 +1607,7 @@ function drawMatrix(rows) {
   ctx.scale(dpr, dpr);
 
   const PAD = 80;        // increased from 64 — more breathing room
-  const MARGIN = 36;     // extra inset so dots at score=1 or 4 aren't on the border
+  const MARGIN = 52;     // extra inset so dots at score=1 or 4 aren't on the border
   const INNER = W - PAD * 2;
   const PLOT  = INNER - MARGIN * 2; // usable plot area inside margin
 
@@ -1634,27 +1668,38 @@ function drawMatrix(rows) {
 
   // ── Background quadrants ──
   const mid = PAD + INNER / 2;
+  // Bottom left: Possibility to defer (red tint)
   ctx.fillStyle = "rgba(254,242,242,0.6)"; ctx.fillRect(PAD, mid, INNER/2, INNER/2);
+  // Bottom right: Big bets (blue tint)
   ctx.fillStyle = "rgba(239,246,255,0.6)"; ctx.fillRect(mid, mid, INNER/2, INNER/2);
-  ctx.fillStyle = "rgba(255,247,237,0.6)"; ctx.fillRect(PAD, PAD, INNER/2, INNER/2);
-  ctx.fillStyle = "rgba(236,253,245,0.6)"; ctx.fillRect(mid, PAD, INNER/2, INNER/2);
+  // Top full width: Quick wins (green tint — merged)
+  ctx.fillStyle = "rgba(236,253,245,0.6)"; ctx.fillRect(PAD, PAD, INNER, INNER/2);
 
   // ── Grid lines ──
   ctx.strokeStyle = "#E2E8F0"; ctx.lineWidth = 1;
   ctx.strokeRect(PAD, PAD, INNER, INNER);
+  // Solid lines: vertical divider bottom half + horizontal midline
   ctx.beginPath();
-  ctx.moveTo(mid, PAD); ctx.lineTo(mid, PAD + INNER);
+  ctx.moveTo(mid, mid); ctx.lineTo(mid, PAD + INNER);
   ctx.moveTo(PAD, mid); ctx.lineTo(PAD + INNER, mid);
   ctx.stroke();
+  // Dotted vertical line in top half only
+  ctx.save();
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(mid, PAD); ctx.lineTo(mid, mid);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
 
   // ── Quadrant labels ──
   ctx.font = "bold 11px DM Sans, sans-serif";
   ctx.textAlign = "center";
   const qlabels = [
-    { text: "⭐ Prioritize",      x: mid + INNER/4, y: PAD + 20, color: "#059669" },
-    { text: "⏳ Quick wins",      x: PAD + INNER/4, y: PAD + 20, color: "#D97706" },
-    { text: "🔬 Strategic bets",  x: mid + INNER/4, y: PAD + INNER - 10, color: "#1d4ed8" },
-    { text: "🚫 Deprioritize",    x: PAD + INNER/4, y: PAD + INNER - 10, color: "#DC2626" },
+    { text: "⭐ Quick wins",           x: PAD + INNER/2, y: PAD + 20, color: "#059669" },
+    { text: "🔬 Big bets",             x: mid + INNER/4, y: PAD + INNER - 10, color: "#1d4ed8" },
+    { text: "🕐 Possibility to defer", x: PAD + INNER/4, y: PAD + INNER - 10, color: "#DC2626" },
   ];
   qlabels.forEach(q => {
     ctx.fillStyle = q.color; ctx.globalAlpha = 0.6;
@@ -1762,10 +1807,17 @@ function drawMatrix(rows) {
 
   // ── Draw name labels as callout chips outside dots ──
   const placedChips = [];
-  // Pre-populate placedChips with dot positions so labels never land on a dot
+  // Pre-populate with dot positions so labels never land on a dot
   dotPositions.forEach(({ cx, cy, noData }) => {
     if (!noData) placedChips.push({ lx: cx - DOT_R - 2, ly: cy - DOT_R - 2, chipW: (DOT_R + 2) * 2, chipH: (DOT_R + 2) * 2 });
   });
+  // Pre-populate with quadrant label zones so chips don't cover them
+  const qlabelZones = [
+    { lx: PAD + INNER/2 - 60, ly: PAD + 6,            chipW: 120, chipH: 22 }, // Quick wins (top center)
+    { lx: mid + INNER/4 - 70, ly: PAD + INNER - 26,   chipW: 140, chipH: 22 }, // Big bets (bottom right)
+    { lx: PAD + INNER/4 - 90, ly: PAD + INNER - 26,   chipW: 180, chipH: 22 }, // Possibility to defer (bottom left)
+  ];
+  qlabelZones.forEach(z => placedChips.push(z));
 
   dotPositions.forEach(({ cx, cy, color, pt, noData }) => {
     if (noData) return;
