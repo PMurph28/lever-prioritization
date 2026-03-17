@@ -362,7 +362,38 @@
     pointer-events: none; color: var(--text-soft); font-size: 10px;
   }
 
-  /* Completion indicator */
+  /* ── Static breadth/depth cells ── */
+  .cell-static {
+    padding: 8px 8px; vertical-align: middle; text-align: center;
+    min-width: 140px;
+  }
+  .cell-static.val-cell { background: #FFFBFB; }
+  .cell-static.feas-cell { background: #F6FBFF; }
+  .static-tag {
+    display: inline-block;
+    padding: 5px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+    background: #F1F5F9; color: #64748b;
+    border: 1.5px dashed #CBD5E1;
+    letter-spacing: 0.1px; cursor: default;
+    font-family: inherit; margin-bottom: 6px;
+  }
+  .impact-btns {
+    display: flex; gap: 5px; justify-content: center; margin-top: 5px;
+  }
+  .impact-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 3px 9px; border-radius: 6px; border: 1.5px solid;
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: all 0.15s; background: var(--white);
+    line-height: 1;
+  }
+  .impact-btn.up   { border-color: #D1FAE5; color: #6EE7B7; }
+  .impact-btn.down { border-color: #FEE2E2; color: #FCA5A5; }
+  .impact-btn.up:hover   { background: #D1FAE5; color: #059669; border-color: #059669; }
+  .impact-btn.down:hover { background: #FEE2E2; color: #DC2626; border-color: #DC2626; }
+  .impact-btn.up.active   { background: #D1FAE5; color: #059669; border-color: #059669; }
+  .impact-btn.down.active { background: #FEE2E2; color: #DC2626; border-color: #DC2626; }
   .cell-status {
     padding: 8px 12px; vertical-align: middle; text-align: center; width: 50px;
   }
@@ -580,7 +611,30 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Responsive */
+  /* ── Group tab toggle ── */
+  .group-tabs {
+    display: flex; gap: 0; margin-bottom: 20px;
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    width: fit-content; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .group-tab {
+    padding: 10px 28px; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none; background: none;
+    font-family: inherit; transition: all 0.15s; color: var(--text-soft);
+    letter-spacing: 0.2px;
+  }
+  .group-tab + .group-tab { border-left: 1.5px solid var(--border); }
+  .group-tab.active.val  { background: #FFF0F0; color: var(--red); }
+  .group-tab.active.feas { background: #EFF7FF; color: #0369a1; }
+  .group-tab:not(.active):hover { background: #F8F9FB; color: var(--text); }
+
+  /* Hide/show column groups */
+  .hide-val  .val-cell,  .hide-val  .val-sub,  .hide-val  .value-group  { display: none !important; }
+  .hide-feas .feas-cell, .hide-feas .feas-sub, .hide-feas .feasibility-group { display: none !important; }
+  /* Remove orphan left border when val cols hidden */
+  .hide-val .group-border { border-left: none !important; }
+
   @media (max-width: 900px) {
     .app-body { padding: 16px; }
     .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -641,7 +695,11 @@
   <div class="app-body">
     <div class="section-intro">
       <h1>Rate the 7 Levers</h1>
-      <p>For each initiative, assess both the <strong>Value</strong> it delivers and the <strong>Feasibility / Speed</strong> of execution using the dropdowns below.</p>
+      <p>Toggle between <strong>Value</strong> and <strong>Feasibility / Speed</strong> to rate each dimension separately.</p>
+      <div class="group-tabs" style="margin-top:16px">
+        <button class="group-tab active val" id="gtab-val" onclick="switchGroup('val')">💰 Value</button>
+        <button class="group-tab feas" id="gtab-feas" onclick="switchGroup('feas')">⚡ Feasibility / Speed</button>
+      </div>
     </div>
 
     <div class="lever-table-wrap">
@@ -655,7 +713,7 @@
             </th>
             <th class="col-group-header feasibility-group" colspan="3" style="border-left:2px solid var(--border)">
               <div class="col-group-label feasibility">Feasibility / Speed</div>
-              <div class="col-group-sub">Ease & speed of execution</div>
+              <div class="col-group-sub">How quickly value can be realised</div>
             </th>
             <th style="width:50px; border-bottom: 1.5px solid var(--border);"></th>
           </tr>
@@ -664,7 +722,7 @@
             <th class="val-sub">
               <div class="th-tooltip-wrap">Summary
                 <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">Overall value rating — Very high, High, Medium, or Low</div>
+                <div class="th-tooltip-box">Overall value rating — Very High Value, High Value, Medium Value, or Low Value</div>
               </div>
             </th>
             <th class="val-sub">
@@ -680,9 +738,9 @@
               </div>
             </th>
             <th class="feas-sub group-border">
-              <div class="th-tooltip-wrap">Summary
+              <div class="th-tooltip-wrap">Time to Value
                 <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">Overall feasibility & speed rating — Very high, High, Medium, or Low</div>
+                <div class="th-tooltip-box">How quickly this lever delivers value — Immediate, Short-term, Medium-term, or Long-term</div>
               </div>
             </th>
             <th class="feas-sub">
@@ -757,7 +815,7 @@
               <th class="val-th">Value Summary</th>
               <th class="val-th">Value Breadth</th>
               <th class="val-th">Value Depth</th>
-              <th class="feas-th border-l">Feasibility Summary</th>
+              <th class="feas-th border-l">Time to Value</th>
               <th class="feas-th">Feas. Breadth</th>
               <th class="feas-th">Feas. Depth</th>
               <th style="width:80px">Responses</th>
@@ -778,16 +836,16 @@
     <!-- TAB: 2×2 MATRIX -->
     <div class="dash-tab-panel" id="dash-panel-matrix">
       <div class="matrix-wrap">
-        <div class="matrix-title">Value vs. Feasibility / Speed</div>
-        <div class="matrix-sub">Average rating per lever across all respondents · Low = 1, Medium = 2, High = 3, Very high = 4</div>
+        <div class="matrix-title">Value vs. Time to Value</div>
+        <div class="matrix-sub">Average rating per lever across all respondents · Low Value / Long-term = 1 · Very High Value / Immediate = 4</div>
         <div class="matrix-canvas-wrap">
           <canvas id="matrix-canvas" width="680" height="680"></canvas>
         </div>
         <div class="matrix-quadrant-labels">
-          <div class="mq-label mq-tl">⏳ Quick wins, limited value<span>High feasibility · Lower value</span></div>
-          <div class="mq-label mq-tr">⭐ Prioritize now<span>High feasibility · High value</span></div>
-          <div class="mq-label mq-bl">🚫 Deprioritize<span>Lower feasibility · Lower value</span></div>
-          <div class="mq-label mq-br">🔬 Strategic bets<span>Lower feasibility · High value</span></div>
+          <div class="mq-label mq-tl">⏳ Quick wins, limited value<span>Immediate · Lower value</span></div>
+          <div class="mq-label mq-tr">⭐ Prioritize now<span>Immediate · High value</span></div>
+          <div class="mq-label mq-bl">🚫 Deprioritize<span>Long-term · Lower value</span></div>
+          <div class="mq-label mq-br">🔬 Strategic bets<span>Long-term · High value</span></div>
         </div>
         <div class="matrix-legend" id="matrix-legend"></div>
       </div>
@@ -812,13 +870,13 @@ const TABLE = "lever_votes_v2";
 
 // ── LEVERS ──────────────────────────────────────────────────────────────────
 const LEVERS = [
-  { id: 1, name: "AI Agent handling",            emoji: "🤖", desc: "Deploy AI agent to resolve routine voice & email inquiries autonomously", origin: "Mistral + Kearney" },
-  { id: 2, name: "Proactive comms",              emoji: "📣", desc: "Reduce inbound demand via proactive, customized customer notifications", origin: "Mistral" },
-  { id: 3, name: "OTI fixes",                    emoji: "🔧", desc: "Reduce order intake-related errors using AI-enhanced OCR & validation rules", origin: "Mistral" },
-  { id: 4, name: "Skillset of the future",       emoji: "🎓", desc: "Modernize competency model (incl. AI fluency); deploy in-context AI nudges for on-the-job learning", origin: "Mistral + FoW Lab" },
-  { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", desc: "Consolidate systems into single workspace with embedded AI guidance", origin: "Mistral + Kearney" },
-  { id: 6, name: "Centralized KMS",              emoji: "📚", desc: "Consolidate agent knowledge (incl. SOPs, FAQs) into single AI-searchable governed repository", origin: "Mistral + Kearney" },
-  { id: 7, name: "Dynamic routing",              emoji: "⚡", desc: "Intelligently route contacts based on skill-based matching; dynamically manage load", origin: "Mistral + Butterfly" },
+  { id: 1, name: "AI Agent handling",               emoji: "🤖", desc: "Deploy AI agent to resolve routine voice & email inquiries autonomously",                                       origin: "Mistral + Kearney",   val_breadth: "Org wide",      val_depth: "Most processes",  feas_breadth: "Most teams",   feas_depth: "Most processes"  },
+  { id: 2, name: "Proactive comms",                 emoji: "📣", desc: "Reduce inbound demand via proactive, customized customer notifications",                                         origin: "Mistral",             val_breadth: "Org wide",      val_depth: "Few processes",   feas_breadth: "Most teams",   feas_depth: "Few processes"   },
+  { id: 3, name: "OTI fixes",                       emoji: "🔧", desc: "Reduce order intake-related errors using AI-enhanced OCR & validation rules",                                    origin: "Mistral",             val_breadth: "Less than half", val_depth: "Few processes",  feas_breadth: "Less than half", feas_depth: "Few processes" },
+  { id: 4, name: "Skillset of the future",          emoji: "🎓", desc: "Modernize competency model (incl. AI fluency); deploy in-context AI nudges for on-the-job learning",             origin: "Mistral + FoW Lab",   val_breadth: "Org wide",      val_depth: "All processes",   feas_breadth: "Org wide",     feas_depth: "Most processes"  },
+  { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", desc: "Consolidate systems into single workspace with embedded AI guidance",                                            origin: "Mistral + Kearney",   val_breadth: "Org wide",      val_depth: "All processes",   feas_breadth: "Org wide",     feas_depth: "All processes"   },
+  { id: 6, name: "Centralized KMS",                 emoji: "📚", desc: "Consolidate agent knowledge (incl. SOPs, FAQs) into single AI-searchable governed repository",                   origin: "Mistral + Kearney",   val_breadth: "Org wide",      val_depth: "Most processes",  feas_breadth: "Most teams",   feas_depth: "Most processes"  },
+  { id: 7, name: "Dynamic routing",                 emoji: "⚡", desc: "Intelligently route contacts based on skill-based matching; dynamically manage load",                             origin: "Mistral + Butterfly", val_breadth: "Most teams",    val_depth: "Most processes",  feas_breadth: "Most teams",   feas_depth: "Most processes"  },
 ];
 
 const VAL_SUMMARY_OPTS  = ["Very High Value", "High Value", "Medium Value", "Low Value"];
@@ -827,13 +885,14 @@ const BREADTH_OPTS = ["Org wide", "Most teams", "Less than half", "Few people"];
 const DEPTH_OPTS   = ["All processes", "Most processes", "Less than half", "Few processes"];
 
 const COLS = [
-  { key: "val_summary",   label: "Summary",           opts: VAL_SUMMARY_OPTS,  group: "val" },
-  { key: "val_breadth",   label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "val" },
-  { key: "val_depth",     label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "val" },
-  { key: "feas_summary",  label: "Summary",            opts: FEAS_SUMMARY_OPTS, group: "feas" },
-  { key: "feas_breadth",  label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "feas" },
-  { key: "feas_depth",    label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "feas" },
+  { key: "val_summary",   label: "Summary",           opts: VAL_SUMMARY_OPTS,  group: "val",  static: false },
+  { key: "val_breadth",   label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "val",  static: true  },
+  { key: "val_depth",     label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "val",  static: true  },
+  { key: "feas_summary",  label: "Summary",            opts: FEAS_SUMMARY_OPTS, group: "feas", static: false },
+  { key: "feas_breadth",  label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "feas", static: true  },
+  { key: "feas_depth",    label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "feas", static: true  },
 ];
+const INTERACTIVE_COLS = COLS.filter(c => !c.static);
 
 let currentUser = "";
 let currentRole = "";
@@ -915,7 +974,20 @@ async function startApp() {
   await loadMyVotes();
 }
 
-// ── BUILD TABLE ───────────────────────────────────────────────────────────────
+// ── GROUP TAB TOGGLE ──────────────────────────────────────────────────────────
+let activeGroup = "val";
+
+function switchGroup(group) {
+  activeGroup = group;
+  const table = document.querySelector(".lever-table-wrap");
+  table.classList.toggle("hide-val",  group === "feas");
+  table.classList.toggle("hide-feas", group === "val");
+
+  document.getElementById("gtab-val").classList.toggle("active", group === "val");
+  document.getElementById("gtab-feas").classList.toggle("active", group === "feas");
+  document.getElementById("gtab-val").classList.toggle("val",  true);
+  document.getElementById("gtab-feas").classList.toggle("feas", true);
+}
 function buildTable() {
   const tbody = document.getElementById("levers-tbody");
   tbody.innerHTML = "";
@@ -935,30 +1007,46 @@ function buildTable() {
       </td>`;
 
     COLS.forEach((col, idx) => {
-      const isGroup = idx === 3; // first feas col gets border
-      const voteKey = lever.id + "__" + col.key;
+      const isGroup = idx === 3;
       const cls = col.group === "val" ? "val-cell" : "feas-cell";
-      const selectCls = col.group === "val" ? "val-select" : "feas-select";
-      cells += `
-        <td class="cell-dropdown ${cls}${isGroup ? " group-border" : ""}">
-          <div class="select-wrap">
-            <select class="lever-select ${selectCls}" id="sel-${voteKey}"
-              onchange="onSelectChange('${voteKey}', this)">
-              <option value="">Rate...</option>
-              ${col.opts.map(o => `<option value="${o}">${o}</option>`).join("")}
-            </select>
-            <span class="select-caret">▾</span>
-          </div>
-        </td>`;
+      const borderCls = isGroup ? " group-border" : "";
+
+      if (col.static) {
+        const staticVal = lever[col.key];
+        const voteKey = lever.id + "__" + col.key + "__impact";
+        cells += `
+          <td class="cell-static ${cls}${borderCls}">
+            <span class="static-tag">${staticVal}</span>
+            <div class="impact-btns">
+              <button class="impact-btn up" id="btn-up-${voteKey}" onclick="onImpactClick('${voteKey}', 'up', this)">▲ +</button>
+              <button class="impact-btn down" id="btn-down-${voteKey}" onclick="onImpactClick('${voteKey}', 'down', this)">▼ −</button>
+            </div>
+          </td>`;
+      } else {
+        const voteKey = lever.id + "__" + col.key;
+        const selectCls = col.group === "val" ? "val-select" : "feas-select";
+        cells += `
+          <td class="cell-dropdown ${cls}${borderCls}">
+            <div class="select-wrap">
+              <select class="lever-select ${selectCls}" id="sel-${voteKey}"
+                onchange="onSelectChange('${voteKey}', this)">
+                <option value="">Rate...</option>
+                ${col.opts.map(o => `<option value="${o}">${o}</option>`).join("")}
+              </select>
+              <span class="select-caret">▾</span>
+            </div>
+          </td>`;
+      }
     });
 
     cells += `<td class="cell-status">
       <span class="status-dot" id="dot-${lever.id}"></span>
-      <span class="status-counter" id="counter-${lever.id}">0/${COLS.length}</span>
+      <span class="status-counter" id="counter-${lever.id}">0/${INTERACTIVE_COLS.length}</span>
     </td>`;
     tr.innerHTML = cells;
     tbody.appendChild(tr);
   });
+  switchGroup(activeGroup);
 }
 
 // ── LOAD MY VOTES ─────────────────────────────────────────────────────────────
@@ -967,7 +1055,7 @@ async function loadMyVotes() {
     TABLE + "?user_name=eq." + encodeURIComponent(currentUser) + "&select=lever_id,col_key,value", null);
   if (!rows) return;
   rows.forEach(r => {
-    const voteKey = r.lever_id + "__" + r.col_key;
+    const voteKey = r.lever_id + "__" + r.col_key; // e.g. "1__val_summary" or "1__val_breadth__impact"
     votes[voteKey] = r.value;
     const sel = document.getElementById("sel-" + voteKey);
     if (sel) {
@@ -975,16 +1063,72 @@ async function loadMyVotes() {
       applySelectStyle(sel, r.value);
     }
   });
+  restoreImpactButtons();
   updateProgress(true);
+  sortTableByValue();
 }
 
-// ── ON SELECT CHANGE ──────────────────────────────────────────────────────────
+// ── IMPACT BUTTONS ────────────────────────────────────────────────────────────
+function onImpactClick(voteKey, direction, btn) {
+  const upBtn   = document.getElementById("btn-up-"   + voteKey);
+  const downBtn = document.getElementById("btn-down-" + voteKey);
+  const alreadyActive = btn.classList.contains("active");
+
+  // Deactivate both first
+  upBtn.classList.remove("active");
+  downBtn.classList.remove("active");
+
+  if (!alreadyActive) {
+    btn.classList.add("active");
+    votes[voteKey] = direction;
+    scheduleSave(voteKey, direction);
+  } else {
+    // Clicking active button toggles it off
+    delete votes[voteKey];
+  }
+}
+
+function restoreImpactButtons() {
+  Object.entries(votes).forEach(([key, val]) => {
+    if (!key.includes("__impact")) return;
+    if (val === "up" || val === "down") {
+      const btn = document.getElementById("btn-" + val + "-" + key);
+      if (btn) btn.classList.add("active");
+    }
+  });
+}
 function onSelectChange(voteKey, sel) {
   const val = sel.value;
   votes[voteKey] = val;
   applySelectStyle(sel, val);
   updateProgress();
   scheduleSave(voteKey, val);
+  // Re-sort whenever a value summary changes
+  if (voteKey.includes("__val_summary")) sortTableByValue();
+}
+
+// ── AUTO SORT ─────────────────────────────────────────────────────────────────
+const VAL_SCORE = { "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1 };
+
+function sortTableByValue() {
+  const tbody = document.getElementById("levers-tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr.lever-row"));
+
+  rows.sort((a, b) => {
+    const aId = parseInt(a.id.replace("row-", ""));
+    const bId = parseInt(b.id.replace("row-", ""));
+    const aScore = VAL_SCORE[votes[aId + "__val_summary"]] || 0;
+    const bScore = VAL_SCORE[votes[bId + "__val_summary"]] || 0;
+    // Sort descending; ties keep original lever ID order
+    return bScore !== aScore ? bScore - aScore : aId - bId;
+  });
+
+  // Fade rows out, re-append in new order, fade back in
+  rows.forEach(r => { r.style.transition = "opacity 0.2s"; r.style.opacity = "0.3"; });
+  setTimeout(() => {
+    rows.forEach(r => tbody.appendChild(r));
+    rows.forEach(r => { r.style.opacity = "1"; });
+  }, 200);
 }
 
 function applySelectStyle(sel, val) {
@@ -999,9 +1143,10 @@ function scheduleSave(voteKey, val) {
 }
 
 async function saveVote(voteKey, val) {
+  // voteKey is either "1__val_summary" or "1__val_breadth__impact"
   const parts = voteKey.split("__");
   const leverId = parseInt(parts[0]);
-  const colKey = parts[1];
+  const colKey = parts.slice(1).join("__"); // e.g. "val_summary" or "val_breadth__impact"
   if (!val) return;
   const row = {
     user_name: currentUser,
@@ -1020,7 +1165,9 @@ async function submitAll() {
   const filled = Object.entries(votes).filter(([k,v]) => v);
   if (filled.length === 0) { showToast("!", "Nothing to submit yet"); return; }
   const rows = filled.map(([key, val]) => {
-    const [leverId, colKey] = [parseInt(key.split("__")[0]), key.split("__")[1]];
+    const parts = key.split("__");
+    const leverId = parseInt(parts[0]);
+    const colKey = parts.slice(1).join("__");
     return { user_name: currentUser, user_role: currentRole || "Unspecified", lever_id: leverId, col_key: colKey, value: val, updated_at: new Date().toISOString() };
   });
   const res = await sbReq("POST", TABLE, rows);
@@ -1034,7 +1181,7 @@ async function submitAll() {
 
 // ── PROGRESS ──────────────────────────────────────────────────────────────────
 function updateProgress(scrollToFirst = false) {
-  const total = LEVERS.length * COLS.length;
+  const total = LEVERS.length * INTERACTIVE_COLS.length;
   const filled = Object.values(votes).filter(v => v).length;
   const pct = Math.round((filled / total) * 100);
   document.getElementById("progress-fill").style.width = pct + "%";
@@ -1042,14 +1189,14 @@ function updateProgress(scrollToFirst = false) {
 
   let firstUnansweredRow = null;
   LEVERS.forEach(lever => {
-    const leverFilled = COLS.filter(col => votes[lever.id + "__" + col.key]).length;
-    const allDone = leverFilled === COLS.length;
+    const leverFilled = INTERACTIVE_COLS.filter(col => votes[lever.id + "__" + col.key]).length;
+    const allDone = leverFilled === INTERACTIVE_COLS.length;
     const dot = document.getElementById("dot-" + lever.id);
     const counter = document.getElementById("counter-" + lever.id);
     const row = document.getElementById("row-" + lever.id);
     if (dot) dot.classList.toggle("done", allDone);
     if (counter) {
-      counter.textContent = `${leverFilled}/${COLS.length}`;
+      counter.textContent = `${leverFilled}/${INTERACTIVE_COLS.length}`;
       counter.classList.toggle("done", allDone);
     }
     if (row) row.classList.toggle("completed", allDone);
@@ -1135,12 +1282,18 @@ async function loadDashboard() {
     const tr = document.createElement("tr");
     let cells = `<td><span class="lever-num">${lever.id}</span> <strong>${lever.emoji} ${lever.name}</strong></td>`;
     COLS.forEach((col, idx) => {
-      const cellRows = rows.filter(r => r.lever_id === lever.id && r.col_key === col.key && r.value);
-      const mode = getMode(cellRows.map(r => r.value));
-      const pillCls = getPillClass(mode);
-      cells += `<td${idx === 3 ? ' style="border-left:1.5px solid var(--border)"' : ''}>
-        ${mode ? `<span class="dash-pill ${pillCls}">${mode}</span>` : '<span class="dash-pill pill-empty">—</span>'}
-      </td>`;
+      const borderStyle = idx === 3 ? ' style="border-left:1.5px solid var(--border)"' : '';
+      if (col.static) {
+        const staticVal = lever[col.key];
+        cells += `<td${borderStyle}><span class="dash-pill pill-empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">${staticVal}</span></td>`;
+      } else {
+        const cellRows = rows.filter(r => r.lever_id === lever.id && r.col_key === col.key && r.value);
+        const mode = getMode(cellRows.map(r => r.value));
+        const pillCls = getPillClass(mode);
+        cells += `<td${borderStyle}>
+          ${mode ? `<span class="dash-pill ${pillCls}">${mode}</span>` : '<span class="dash-pill pill-empty">—</span>'}
+        </td>`;
+      }
     });
     const respCount = [...new Set(rows.filter(r => r.lever_id === lever.id).map(r => r.user_name))].length;
     cells += `<td style="text-align:center;font-weight:700;color:var(--text-soft)">${respCount}</td>`;
@@ -1207,185 +1360,207 @@ function drawMatrix(rows) {
   const ctx = canvas.getContext("2d");
   ctx.scale(dpr, dpr);
 
-  const PAD = 64; // space for axis labels
+  const PAD = 80;        // increased from 64 — more breathing room
+  const MARGIN = 36;     // extra inset so dots at score=1 or 4 aren't on the border
   const INNER = W - PAD * 2;
+  const PLOT  = INNER - MARGIN * 2; // usable plot area inside margin
 
   const scoreMap = {
     "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1,
     "Immediate": 4, "Short-term": 3, "Medium-term": 2, "Long-term": 1
   };
 
+  // Helper: map score 1–4 to canvas coordinate with margin inset
+  const toX = val => PAD + MARGIN + ((val - 1) / 3) * PLOT;
+  const toY = val => PAD + MARGIN + PLOT - ((val - 1) / 3) * PLOT;
+
   // Compute avg val_summary and feas_summary per lever
   const leverPoints = LEVERS.map(l => {
-    const valRows = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary" && r.value);
+    const valRows  = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary"  && r.value);
     const feasRows = rows.filter(r => r.lever_id === l.id && r.col_key === "feas_summary" && r.value);
-    const valAvg = valRows.length ? valRows.reduce((s,r) => s + (scoreMap[r.value] || 0), 0) / valRows.length : null;
+    const valAvg  = valRows.length  ? valRows.reduce((s,r)  => s + (scoreMap[r.value] || 0), 0) / valRows.length  : null;
     const feasAvg = feasRows.length ? feasRows.reduce((s,r) => s + (scoreMap[r.value] || 0), 0) / feasRows.length : null;
-    return { lever: l, valAvg, feasAvg, nVal: valRows.length, nFeas: feasRows.length };
+    return { lever: l, valAvg, feasAvg };
   });
 
   // ── Background quadrants ──
   const mid = PAD + INNER / 2;
-
-  // Bottom-left: Deprioritize (low val, low feas)
-  ctx.fillStyle = "rgba(254,242,242,0.6)";
-  ctx.fillRect(PAD, mid, INNER/2, INNER/2);
-  // Bottom-right: Strategic bets (high val, low feas)
-  ctx.fillStyle = "rgba(239,246,255,0.6)";
-  ctx.fillRect(mid, mid, INNER/2, INNER/2);
-  // Top-left: Quick wins (low val, high feas)
-  ctx.fillStyle = "rgba(255,247,237,0.6)";
-  ctx.fillRect(PAD, PAD, INNER/2, INNER/2);
-  // Top-right: Prioritize now (high val, high feas)
-  ctx.fillStyle = "rgba(236,253,245,0.6)";
-  ctx.fillRect(mid, PAD, INNER/2, INNER/2);
+  ctx.fillStyle = "rgba(254,242,242,0.6)"; ctx.fillRect(PAD, mid, INNER/2, INNER/2);
+  ctx.fillStyle = "rgba(239,246,255,0.6)"; ctx.fillRect(mid, mid, INNER/2, INNER/2);
+  ctx.fillStyle = "rgba(255,247,237,0.6)"; ctx.fillRect(PAD, PAD, INNER/2, INNER/2);
+  ctx.fillStyle = "rgba(236,253,245,0.6)"; ctx.fillRect(mid, PAD, INNER/2, INNER/2);
 
   // ── Grid lines ──
-  ctx.strokeStyle = "#E2E8F0";
-  ctx.lineWidth = 1;
-  // outer border
+  ctx.strokeStyle = "#E2E8F0"; ctx.lineWidth = 1;
   ctx.strokeRect(PAD, PAD, INNER, INNER);
-  // midlines
   ctx.beginPath();
   ctx.moveTo(mid, PAD); ctx.lineTo(mid, PAD + INNER);
   ctx.moveTo(PAD, mid); ctx.lineTo(PAD + INNER, mid);
   ctx.stroke();
 
-  // Subtle tick lines at 1,2,3,4
-  ctx.strokeStyle = "rgba(226,232,240,0.5)";
-  ctx.lineWidth = 0.5;
-  [1,2,3,4].forEach(v => {
-    const xPos = PAD + ((v - 1) / 3) * INNER;
-    const yPos = PAD + INNER - ((v - 1) / 3) * INNER;
-    ctx.beginPath(); ctx.moveTo(xPos, PAD); ctx.lineTo(xPos, PAD + INNER); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(PAD, yPos); ctx.lineTo(PAD + INNER, yPos); ctx.stroke();
-  });
-
   // ── Quadrant labels ──
   ctx.font = "bold 11px DM Sans, sans-serif";
   ctx.textAlign = "center";
   const qlabels = [
-    { text: "⭐ Prioritize", x: mid + INNER/4, y: PAD + 18, color: "#059669" },
-    { text: "⏳ Quick wins", x: PAD + INNER/4, y: PAD + 18, color: "#D97706" },
-    { text: "🔬 Strategic bets", x: mid + INNER/4, y: PAD + INNER - 8, color: "#1d4ed8" },
-    { text: "🚫 Deprioritize", x: PAD + INNER/4, y: PAD + INNER - 8, color: "#DC2626" },
+    { text: "⭐ Prioritize",      x: mid + INNER/4, y: PAD + 20, color: "#059669" },
+    { text: "⏳ Quick wins",      x: PAD + INNER/4, y: PAD + 20, color: "#D97706" },
+    { text: "🔬 Strategic bets",  x: mid + INNER/4, y: PAD + INNER - 10, color: "#1d4ed8" },
+    { text: "🚫 Deprioritize",    x: PAD + INNER/4, y: PAD + INNER - 10, color: "#DC2626" },
   ];
   qlabels.forEach(q => {
-    ctx.fillStyle = q.color; ctx.globalAlpha = 0.65;
+    ctx.fillStyle = q.color; ctx.globalAlpha = 0.6;
     ctx.fillText(q.text, q.x, q.y);
   });
   ctx.globalAlpha = 1;
 
   // ── Axis labels ──
-  ctx.fillStyle = "#64748b";
-  ctx.font = "bold 12px DM Sans, sans-serif";
-  ctx.textAlign = "center";
-  // X axis label (Value)
-  ctx.fillText("← Lower Value          Higher Value →", PAD + INNER/2, H - 12);
-  // Y axis label (Feasibility) — rotated
+  ctx.fillStyle = "#64748b"; ctx.font = "bold 12px DM Sans, sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("← Lower Value          Higher Value →", PAD + INNER/2, H - 14);
   ctx.save();
   ctx.translate(14, PAD + INNER/2);
   ctx.rotate(-Math.PI/2);
-  ctx.fillText("← Lower Feasibility          Higher Feasibility →", 0, 0);
+  ctx.fillText("← Long-term          Immediate →", 0, 0);
   ctx.restore();
 
-  // Tick labels on axes
-  ctx.font = "500 10px DM Sans, sans-serif";
-  ctx.fillStyle = "#94a3b8";
-  const tickLabels = ["Low", "Med", "High", "V.High"];
-  tickLabels.forEach((lbl, i) => {
-    const xPos = PAD + (i / 3) * INNER;
-    const yPos = PAD + INNER - (i / 3) * INNER;
+  // Tick labels
+  ctx.font = "500 10px DM Sans, sans-serif"; ctx.fillStyle = "#94a3b8";
+  ["Low Value","Med Value","High Value","V.High"].forEach((lbl, i) => {
     ctx.textAlign = "center";
-    ctx.fillText(lbl, xPos, PAD + INNER + 16);
+    ctx.fillText(lbl, PAD + (i / 3) * INNER, PAD + INNER + 16);
+  });
+  ["Long-term","Med-term","Short-term","Immediate"].forEach((lbl, i) => {
     ctx.textAlign = "right";
-    ctx.fillText(lbl, PAD - 6, yPos + 4);
+    ctx.fillText(lbl, PAD - 6, PAD + INNER - (i / 3) * INNER + 4);
   });
 
-  // ── Dot colors per lever ──
-  const DOT_COLORS = [
-    "#CC0000","#2563EB","#059669","#D97706","#7C3AED","#0891B2","#DB2777"
-  ];
+  // ── Dot colors ──
+  const DOT_COLORS = ["#CC0000","#2563EB","#059669","#D97706","#7C3AED","#0891B2","#DB2777"];
+  const DOT_R = 20;
 
-  // ── Helper: scatter/jitter overlapping dots ──
+  // ── Jitter overlapping dots ──
   const placed = [];
-  function jitter(cx, cy, r) {
+  function jitter(cx, cy) {
     const key = Math.round(cx) + "," + Math.round(cy);
     const count = placed.filter(p => p === key).length;
     placed.push(key);
     if (count === 0) return { x: cx, y: cy };
     const angle = (count - 1) * (Math.PI * 2 / 6);
-    return { x: cx + Math.cos(angle) * (r + 4), y: cy + Math.sin(angle) * (r + 4) };
+    return { x: cx + Math.cos(angle) * (DOT_R * 2 + 6), y: cy + Math.sin(angle) * (DOT_R * 2 + 6) };
   }
 
-  // ── Draw dots ──
-  const DOT_R = 22;
+  // ── Build legend ──
   const legend = document.getElementById("matrix-legend");
   legend.innerHTML = "";
 
+  // Collect all dot positions first so labels can avoid overlap
+  const dotPositions = [];
+
   leverPoints.forEach((pt, i) => {
     const color = DOT_COLORS[i % DOT_COLORS.length];
-    // Build legend regardless
     const li = document.createElement("div");
     li.className = "matrix-legend-item";
     li.innerHTML = `<span class="matrix-legend-dot" style="background:${color}"></span>${pt.lever.id}. ${pt.lever.emoji} ${pt.lever.name}`;
     legend.appendChild(li);
 
     if (pt.valAvg === null || pt.feasAvg === null) {
-      // Draw greyed placeholder at center with dashed border
-      const cx = PAD + ((2.5 - 1) / 3) * INNER;
-      const cy = PAD + INNER - ((2.5 - 1) / 3) * INNER;
+      // Greyed placeholder — spread them along the bottom
+      const cx = PAD + MARGIN + (i / (LEVERS.length - 1)) * PLOT;
+      const cy = PAD + MARGIN + PLOT * 0.5;
       ctx.save();
       ctx.setLineDash([3,3]);
       ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(cx, cy, DOT_R * 0.7, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, DOT_R * 0.75, 0, Math.PI*2); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = "#94a3b8"; ctx.font = "bold 11px DM Sans, sans-serif";
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(pt.lever.id, cx, cy);
       ctx.restore();
+      dotPositions.push({ cx, cy, color, pt, noData: true });
       return;
     }
 
-    // Map score 1–4 to canvas coords
-    // X = value (1=left, 4=right), Y = feasibility (1=bottom, 4=top)
-    const rawX = PAD + ((pt.valAvg - 1) / 3) * INNER;
-    const rawY = PAD + INNER - ((pt.feasAvg - 1) / 3) * INNER;
-    const { x: cx, y: cy } = jitter(rawX, rawY, DOT_R);
+    const rawX = toX(pt.valAvg);
+    const rawY = toY(pt.feasAvg);
+    const { x: cx, y: cy } = jitter(rawX, rawY);
+    dotPositions.push({ cx, cy, color, pt, noData: false });
+  });
+
+  // ── Draw dots then labels ──
+  dotPositions.forEach(({ cx, cy, color, pt, noData }) => {
+    if (noData) return;
 
     // Shadow
     ctx.save();
-    ctx.shadowColor = color + "55";
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 3;
-
-    // Circle fill
-    ctx.beginPath();
-    ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-
+    ctx.shadowColor = color + "44";
+    ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, DOT_R, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
     ctx.restore();
 
     // White ring
-    ctx.beginPath();
-    ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, DOT_R, 0, Math.PI*2);
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
 
-    // Number label
+    // Number inside dot
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 13px DM Sans, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.font = "bold 12px DM Sans, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText(pt.lever.id, cx, cy);
+  });
 
-    // Avg score tooltip below dot (small)
+  // ── Draw name labels as callout chips outside dots ──
+  dotPositions.forEach(({ cx, cy, color, pt, noData }) => {
+    if (noData) return;
+
+    const name = pt.lever.emoji + " " + pt.lever.name;
+    ctx.font = "600 10.5px DM Sans, sans-serif";
+    const textW = ctx.measureText(name).width;
+    const chipW = textW + 14;
+    const chipH = 18;
+    const chipR = 5;
+
+    // Position label: prefer above, shift left/right to stay in bounds
+    let lx = cx - chipW / 2;
+    let ly = cy - DOT_R - chipH - 5;
+
+    // Clamp horizontally
+    lx = Math.max(PAD + 2, Math.min(lx, PAD + INNER - chipW - 2));
+    // If too close to top, put below dot instead
+    if (ly < PAD + 2) ly = cy + DOT_R + 5;
+
+    // Chip background
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.10)";
+    ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    // Rounded rect
+    ctx.beginPath();
+    ctx.moveTo(lx + chipR, ly);
+    ctx.lineTo(lx + chipW - chipR, ly);
+    ctx.quadraticCurveTo(lx + chipW, ly, lx + chipW, ly + chipR);
+    ctx.lineTo(lx + chipW, ly + chipH - chipR);
+    ctx.quadraticCurveTo(lx + chipW, ly + chipH, lx + chipW - chipR, ly + chipH);
+    ctx.lineTo(lx + chipR, ly + chipH);
+    ctx.quadraticCurveTo(lx, ly + chipH, lx, ly + chipH - chipR);
+    ctx.lineTo(lx, ly + chipR);
+    ctx.quadraticCurveTo(lx, ly, lx + chipR, ly);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    // Label text
+    ctx.fillStyle = "#1e293b";
+    ctx.font = "600 10.5px DM Sans, sans-serif";
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillText(name, lx + 7, ly + chipH / 2);
+
+    // Score line below chip
     ctx.fillStyle = "#94a3b8";
     ctx.font = "500 9px DM Sans, sans-serif";
-    ctx.textBaseline = "top";
-    ctx.fillText(`V:${pt.valAvg.toFixed(1)} F:${pt.feasAvg.toFixed(1)}`, cx, cy + DOT_R + 4);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.fillText(`V: ${pt.valAvg.toFixed(1)} · T: ${pt.feasAvg.toFixed(1)}`, cx, ly + chipH + 3);
   });
 
   ctx.textBaseline = "alphabetic";
