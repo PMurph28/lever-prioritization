@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JJMT — Lever Assessment</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #CC0000;
+    --red-dark: #A30000;
+    --red-light: #FFEEEE;
+    --red-mid: #FFD5D5;
+    --navy: #1B1B2F;
+    --navy-light: #2D2D44;
+    --slate: #64748b;
+    --border: #E2E8F0;
+    --bg: #F8F9FB;
+    --white: #FFFFFF;
+    --text: #1e293b;
+    --text-soft: #64748b;
+    --green: #059669;
+    --green-light: #ECFDF5;
+    --amber: #D97706;
+    --amber-light: #FFFBEB;
+    --blue: #1d4ed8;
+    --blue-light: #EFF6FF;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── HYPE SCREEN ── */
+  #hype-screen {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0;
+    overflow: hidden;
+  }
+  .hype-bg {
+    position: absolute; inset: 0; overflow: hidden;
+  }
+  .hype-circle {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .hype-content {
+    position: relative; z-index: 2;
+    text-align: center;
+    animation: hypeIn 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
+    opacity: 0; transform: translateY(24px);
+  }
+  @keyframes hypeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hype-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--red); margin-bottom: 20px;
+  }
+  .hype-title {
+    font-size: clamp(36px, 6vw, 64px); font-weight: 800;
+    color: #fff; line-height: 1.05; margin-bottom: 16px;
+  }
+  .hype-title span { color: var(--red); }
+  .hype-sub {
+    font-size: 16px; color: rgba(255,255,255,0.5);
+    font-weight: 400; margin-bottom: 48px; max-width: 420px; margin-left: auto; margin-right: auto;
+  }
+  .btn-hype {
+    background: var(--red); color: #fff; border: none;
+    padding: 16px 40px; font-size: 15px; font-weight: 700;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    letter-spacing: 0.3px;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    box-shadow: 0 4px 24px rgba(204,0,0,0.4);
+  }
+  .btn-hype:hover { background: var(--red-dark); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(204,0,0,0.5); }
+
+  /* ── LOGIN SCREEN ── */
+  #login-screen {
+    display: none; position: fixed; inset: 0; z-index: 900;
+    background: var(--bg);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .login-card {
+    background: var(--white); border-radius: 20px;
+    border: 1.5px solid var(--border);
+    padding: 48px 44px; width: 420px; max-width: 95vw;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.08);
+    animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+    opacity: 0; transform: translateY(20px);
+  }
+  @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+  .login-logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
+  }
+  .login-logo-mark {
+    width: 36px; height: 36px; background: var(--red); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: #fff; font-size: 15px; letter-spacing: -0.5px;
+  }
+  .login-logo-text { font-weight: 800; font-size: 18px; color: var(--text); }
+  .login-logo-text span { color: var(--red); }
+  .login-heading { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .login-sub { font-size: 14px; color: var(--text-soft); margin-bottom: 28px; }
+  .login-label { font-size: 12px; font-weight: 700; color: var(--text-soft); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .login-input {
+    width: 100%; padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 15px; font-family: inherit;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--bg); color: var(--text);
+    margin-bottom: 20px;
+  }
+  .login-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,0.08); background: var(--white); }
+  .login-role-row { display: none; }
+  .btn-login {
+    width: 100%; padding: 14px; background: var(--red); color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background 0.15s, transform 0.1s;
+  }
+  .btn-login:hover { background: var(--red-dark); }
+  .btn-login:active { transform: scale(0.99); }
+
+  /* ── MAIN APP ── */
+  #app-screen { display: none; min-height: 100vh; flex-direction: column; }
+
+  /* Header */
+  .app-header {
+    background: var(--navy); padding: 0 32px;
+    height: 60px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 3px solid var(--red);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo-mark {
+    width: 30px; height: 30px; background: var(--red); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: #fff; font-size: 12px;
+  }
+  .header-title { font-weight: 800; font-size: 15px; color: #fff; letter-spacing: 0.2px; }
+  .header-title span { color: rgba(255,255,255,0.4); font-weight: 400; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-user {
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500;
+  }
+  .header-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--red); display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 800; color: #fff;
+  }
+  .btn-dashboard {
+    padding: 7px 16px; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+    color: #fff; font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .btn-dashboard:hover { background: rgba(255,255,255,0.18); }
+  .btn-submit-all {
+    padding: 7px 18px; background: var(--red);
+    border: none; border-radius: 8px;
+    color: #fff; font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .btn-submit-all:hover { background: var(--red-dark); }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.08); height: 3px;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--red);
+    transition: width 0.4s ease; width: 0%;
+  }
+
+  /* Main content */
+  .app-body { padding: 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* Section heading */
+  .section-intro {
+    margin-bottom: 28px;
+  }
+  .section-intro h1 { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .section-intro p { font-size: 14px; color: var(--text-soft); max-width: 600px; line-height: 1.6; }
+
+  /* ── TABLE ── */
+  .lever-table-wrap {
+    background: var(--white); border-radius: 16px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  }
+
+  .lever-table { width: 100%; border-collapse: collapse; }
+
+  /* Column header rows */
+  .thead-group th {
+    padding: 0; background: var(--white);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .col-lever-header {
+    padding: 16px 20px; text-align: left;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-soft);
+    width: 220px; vertical-align: middle;
+  }
+  .col-group-header {
+    text-align: center; vertical-align: middle;
+    border-left: 2px solid var(--border);
+    padding: 14px 20px;
+  }
+  .col-group-header.value-group { background: #FFF5F5; }
+  .col-group-header.feasibility-group { background: #F0F9FF; }
+  .col-group-label {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .col-group-label.value { color: var(--red); }
+  .col-group-label.feasibility { color: #0369a1; }
+  .col-group-sub { font-size: 11px; color: var(--text-soft); font-weight: 400; margin-top: 2px; }
+
+  /* Sub-header row */
+  .thead-sub th {
+    padding: 10px 16px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-soft);
+    border-bottom: 1.5px solid var(--border);
+    text-align: center; background: var(--white);
+  }
+  .thead-sub th.lever-sub { text-align: left; background: var(--white); }
+  .thead-sub th.val-sub { background: #FFF5F5; }
+  .thead-sub th.feas-sub { background: #F0F9FF; }
+  .thead-sub th.group-border { border-left: 2px solid var(--border); }
+
+  /* Body rows */
+  .lever-row { transition: background 0.1s; }
+  .lever-row:not(:last-child) { border-bottom: 1.5px solid var(--border); }
+  .lever-row:hover { background: #FAFBFC; }
+  .lever-row.completed { background: #FAFFFE; }
+
+  .cell-lever {
+    padding: 12px 16px; vertical-align: middle; width: 220px;
+  }
+  .lever-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 5px;
+    background: var(--red); color: #fff;
+    font-size: 10px; font-weight: 800;
+    margin-right: 8px; flex-shrink: 0;
+    vertical-align: middle;
+  }
+  .lever-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .lever-desc { display: none; }
+  .lever-origin { font-size: 10px; color: var(--text-soft); margin-top: 2px; font-style: italic; }
+
+  /* Dropdown cells */
+  .cell-dropdown {
+    padding: 8px 8px; vertical-align: middle; text-align: center;
+    min-width: 140px;
+  }
+  .cell-dropdown.val-cell { background: #FFFBFB; }
+  .cell-dropdown.feas-cell { background: #F6FBFF; }
+  .cell-dropdown.group-border { border-left: 2px solid var(--border); }
+
+  .select-wrap { position: relative; display: inline-block; width: 100%; }
+  .lever-select {
+    width: 100%; padding: 8px 28px 8px 12px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 12px; font-family: inherit; font-weight: 600;
+    color: var(--text); background: var(--white);
+    cursor: pointer; outline: none;
+    appearance: none; -webkit-appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    text-align: center;
+  }
+  .lever-select:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,0.08); }
+  .lever-select.has-value { color: var(--text); }
+  .lever-select.val-select:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,0.08); }
+  .lever-select.feas-select:focus { border-color: #0369a1; box-shadow: 0 0 0 3px rgba(3,105,161,0.08); }
+  .lever-select.feas-select.has-value:focus { border-color: #0369a1; }
+  .select-caret {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; color: var(--text-soft); font-size: 10px;
+  }
+
+  /* Completion indicator */
+  .cell-status {
+    padding: 8px 12px; vertical-align: middle; text-align: center; width: 50px;
+  }
+  .status-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #e2e8f0; display: inline-block;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .status-dot.done { background: var(--green); transform: scale(1.2); }
+
+  /* Color coding for selected values */
+  .lever-select[data-val="Very high"] { border-color: #10B981; background: #ECFDF5; color: #065F46; }
+  .lever-select[data-val="High"] { border-color: #34D399; background: #F0FDF4; color: #065F46; }
+  .lever-select[data-val="Medium"] { border-color: #FBBF24; background: #FFFBEB; color: #92400E; }
+  .lever-select[data-val="Low"] { border-color: #F87171; background: #FFF5F5; color: #991B1B; }
+  .lever-select[data-val="Org wide"] { border-color: #818CF8; background: #EEF2FF; color: #3730A3; }
+  .lever-select[data-val="Most teams"] { border-color: #A78BFA; background: #F5F3FF; color: #4C1D95; }
+  .lever-select[data-val="Less than half"] { border-color: #FBBF24; background: #FFFBEB; color: #92400E; }
+  .lever-select[data-val="Few people"] { border-color: #F87171; background: #FFF5F5; color: #991B1B; }
+  .lever-select[data-val="All processes"] { border-color: #818CF8; background: #EEF2FF; color: #3730A3; }
+  .lever-select[data-val="Most processes"] { border-color: #A78BFA; background: #F5F3FF; color: #4C1D95; }
+  .lever-select[data-val="Few processes"] { border-color: #F87171; background: #FFF5F5; color: #991B1B; }
+
+  /* Save status */
+  .save-toast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 500;
+    background: var(--navy); color: #fff; border-radius: 12px;
+    padding: 14px 20px; font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transform: translateY(80px); opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
+    pointer-events: none;
+  }
+  .save-toast.show { transform: translateY(0); opacity: 1; }
+  .save-toast-icon { font-size: 18px; }
+
+  /* ── DASHBOARD ── */
+  #dashboard-screen {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: var(--bg); overflow-y: auto;
+  }
+  .dash-header {
+    background: var(--navy); padding: 0 32px;
+    height: 60px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid var(--red); position: sticky; top: 0; z-index: 10;
+  }
+  .dash-title { font-size: 16px; font-weight: 800; color: #fff; }
+  .btn-close-dash {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; color: #fff; padding: 7px 16px;
+    font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-close-dash:hover { background: rgba(255,255,255,0.2); }
+
+  .dash-body { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* Stat cards */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--white); border-radius: 14px; border: 1.5px solid var(--border);
+    padding: 20px 22px;
+  }
+  .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 8px; }
+  .stat-value { font-size: 32px; font-weight: 800; color: var(--text); }
+  .stat-sub { font-size: 12px; color: var(--text-soft); margin-top: 4px; }
+
+  /* Results table */
+  .dash-section-title {
+    font-size: 16px; font-weight: 800; color: var(--text);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .dash-section-title .badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 5px;
+    background: var(--red-light); color: var(--red);
+  }
+
+  .results-table-wrap {
+    background: var(--white); border-radius: 16px;
+    border: 1.5px solid var(--border); overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04); margin-bottom: 32px;
+  }
+  .results-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .results-table th {
+    padding: 12px 16px; text-align: left;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-soft);
+    border-bottom: 1.5px solid var(--border); background: #FAFBFC;
+  }
+  .results-table th.val-th { background: #FFF8F8; color: var(--red); }
+  .results-table th.feas-th { background: #F0F9FF; color: #0369a1; }
+  .results-table th.border-l { border-left: 1.5px solid var(--border); }
+  .results-table td {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table tr:hover td { background: #FAFBFC; }
+
+  .dash-pill {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .pill-veryhigh { background: #ECFDF5; color: #065F46; }
+  .pill-high { background: #F0FDF4; color: #166534; }
+  .pill-medium { background: #FFFBEB; color: #92400E; }
+  .pill-low { background: #FFF5F5; color: #991B1B; }
+  .pill-orgwide { background: #EEF2FF; color: #3730A3; }
+  .pill-mostteams { background: #F5F3FF; color: #4C1D95; }
+  .pill-lessthan { background: #FFFBEB; color: #92400E; }
+  .pill-few { background: #FFF5F5; color: #991B1B; }
+  .pill-empty { background: #F1F5F9; color: #94a3b8; font-style: italic; }
+
+  /* Respondents list */
+  .respondents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .respondent-card {
+    background: var(--white); border-radius: 12px;
+    border: 1.5px solid var(--border); padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .respondent-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--red); display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 800;
+    color: #fff; flex-shrink: 0;
+  }
+  .respondent-name { font-size: 14px; font-weight: 700; }
+  .respondent-meta { font-size: 11px; color: var(--text-soft); }
+  .respondent-progress {
+    margin-left: auto; font-size: 11px; font-weight: 700;
+    color: var(--green);
+  }
+
+  /* ── DASHBOARD TABS ── */
+  .dash-tabs {
+    display: flex; gap: 0; padding: 0 32px;
+    background: var(--navy); border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .dash-tab {
+    padding: 12px 22px; font-size: 13px; font-weight: 700;
+    color: rgba(255,255,255,0.45); cursor: pointer;
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s; letter-spacing: 0.2px;
+    font-family: inherit;
+    background: none; border-top: none; border-left: none; border-right: none;
+  }
+  .dash-tab:hover { color: rgba(255,255,255,0.8); }
+  .dash-tab.active { color: #fff; border-bottom-color: var(--red); }
+
+  .dash-tab-panel { display: none; }
+  .dash-tab-panel.active { display: block; }
+
+  /* ── 2×2 MATRIX ── */
+  .matrix-wrap {
+    background: var(--white); border-radius: 16px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    padding: 32px; margin-bottom: 32px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .matrix-title {
+    font-size: 16px; font-weight: 800; color: var(--text);
+    margin-bottom: 4px; align-self: flex-start;
+  }
+  .matrix-sub {
+    font-size: 13px; color: var(--text-soft); margin-bottom: 28px;
+    align-self: flex-start;
+  }
+  .matrix-canvas-wrap {
+    position: relative; width: 100%; max-width: 680px;
+  }
+  #matrix-canvas { display: block; width: 100%; height: auto; }
+  .matrix-legend {
+    display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; justify-content: center;
+  }
+  .matrix-legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 600; color: var(--text-soft);
+  }
+  .matrix-legend-dot {
+    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  }
+  .matrix-quadrant-labels {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 20px; width: 100%; max-width: 680px;
+  }
+  .mq-label {
+    border-radius: 10px; padding: 12px 16px; font-size: 12px; font-weight: 700;
+  }
+  .mq-label span { display: block; font-size: 11px; font-weight: 400; color: inherit; opacity: 0.75; margin-top: 3px; }
+  .mq-tl { background: #FFF7ED; color: #92400E; }  /* High feas, Low val */
+  .mq-tr { background: #ECFDF5; color: #065F46; }  /* High feas, High val — star */
+  .mq-bl { background: #FEF2F2; color: #991B1B; }  /* Low feas, Low val */
+  .mq-br { background: #EFF6FF; color: #1e40af; }  /* Low feas, High val */
+
+  /* Confetti */
+  #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .app-body { padding: 16px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .cell-lever { width: 160px; }
+    .lever-name { font-size: 12px; }
+    .cell-dropdown { min-width: 120px; padding: 10px 6px; }
+    .lever-select { font-size: 11px; padding: 7px 22px 7px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HYPE SCREEN -->
+<div id="hype-screen">
+  <div class="hype-bg" id="hype-bg"></div>
+  <div class="hype-content">
+    <div class="hype-eyebrow">J&J MedTech · CS Transformation</div>
+    <div class="hype-title">Lever<br><span>Assessment</span></div>
+    <div class="hype-sub">Rate each initiative on value and feasibility to help prioritize our transformation roadmap</div>
+    <button class="btn-hype" onclick="showLogin()">Begin Assessment →</button>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark">JJ</div>
+      <div class="login-logo-text">MedTech <span>CS</span></div>
+    </div>
+    <div class="login-heading">Who are you?</div>
+    <div class="login-sub">Enter your email to begin the assessment</div>
+    <label class="login-label">Your email</label>
+    <input class="login-input" id="name-input" type="email" placeholder="e.g. sarah.johnson@jnj.com"
+      onkeydown="if(event.key==='Enter') startApp()" />
+    <button class="btn-login" onclick="startApp()">Start Assessment →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen">
+  <div class="app-header">
+    <div class="header-left">
+      <div class="header-logo-mark">JJ</div>
+      <div class="header-title">Lever Assessment <span>· CS Transformation</span></div>
+    </div>
+    <div class="header-right">
+      <div class="header-user">
+        <div class="header-avatar" id="header-avatar">?</div>
+        <span id="header-name">—</span>
+      </div>
+      <button class="btn-dashboard" onclick="showDashboard()">📊 Dashboard</button>
+      <button class="btn-submit-all" onclick="submitAll()">Submit All ✓</button>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+
+  <div class="app-body">
+    <div class="section-intro">
+      <h1>Rate the 7 Levers</h1>
+      <p>For each initiative, assess both the <strong>Value</strong> it delivers and the <strong>Feasibility / Speed</strong> of execution using the dropdowns below.</p>
+    </div>
+
+    <div class="lever-table-wrap">
+      <table class="lever-table">
+        <thead>
+          <tr class="thead-group">
+            <th class="col-lever-header">Initiative</th>
+            <th class="col-group-header value-group" colspan="3">
+              <div class="col-group-label value">Value</div>
+              <div class="col-group-sub">Impact delivered to the business</div>
+            </th>
+            <th class="col-group-header feasibility-group" colspan="3" style="border-left:2px solid var(--border)">
+              <div class="col-group-label feasibility">Feasibility / Speed</div>
+              <div class="col-group-sub">Ease & speed of execution</div>
+            </th>
+            <th style="width:50px; border-bottom: 1.5px solid var(--border);"></th>
+          </tr>
+          <tr class="thead-sub">
+            <th class="lever-sub"></th>
+            <th class="val-sub">Summary</th>
+            <th class="val-sub">Breadth of Impact</th>
+            <th class="val-sub">Depth of Impact</th>
+            <th class="feas-sub group-border">Summary</th>
+            <th class="feas-sub">Breadth of Impact</th>
+            <th class="feas-sub">Depth of Impact</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="levers-tbody">
+          <!-- Rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen">
+  <div class="dash-header">
+    <div class="dash-title">📊 Live Results Dashboard</div>
+    <button class="btn-close-dash" onclick="closeDashboard()">← Back to Assessment</button>
+  </div>
+  <div class="dash-tabs">
+    <button class="dash-tab active" onclick="switchDashTab('overview', this)">Overview</button>
+    <button class="dash-tab" onclick="switchDashTab('matrix', this)">2×2 Matrix</button>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- TAB: OVERVIEW -->
+    <div class="dash-tab-panel active" id="dash-panel-overview">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Respondents</div>
+          <div class="stat-value" id="stat-respondents">—</div>
+          <div class="stat-sub">participants so far</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Responses</div>
+          <div class="stat-value" id="stat-responses">—</div>
+          <div class="stat-sub">individual ratings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completion</div>
+          <div class="stat-value" id="stat-completion">—</div>
+          <div class="stat-sub">avg % complete</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Top Rated</div>
+          <div class="stat-value" id="stat-top" style="font-size:18px;margin-top:4px">—</div>
+          <div class="stat-sub">by value consensus</div>
+        </div>
+      </div>
+
+      <div class="dash-section-title">
+        Consensus Results <span class="badge">All Respondents</span>
+      </div>
+      <div class="results-table-wrap">
+        <table class="results-table" id="results-table">
+          <thead>
+            <tr>
+              <th style="width:200px">Lever</th>
+              <th class="val-th">Value Summary</th>
+              <th class="val-th">Value Breadth</th>
+              <th class="val-th">Value Depth</th>
+              <th class="feas-th border-l">Feasibility Summary</th>
+              <th class="feas-th">Feas. Breadth</th>
+              <th class="feas-th">Feas. Depth</th>
+              <th style="width:80px">Responses</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8">Loading results...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dash-section-title">Participants</div>
+      <div class="respondents-grid" id="respondents-grid">
+        <div style="color:#94a3b8;font-size:13px">Loading...</div>
+      </div>
+    </div>
+
+    <!-- TAB: 2×2 MATRIX -->
+    <div class="dash-tab-panel" id="dash-panel-matrix">
+      <div class="matrix-wrap">
+        <div class="matrix-title">Value vs. Feasibility / Speed</div>
+        <div class="matrix-sub">Average rating per lever across all respondents · Low = 1, Medium = 2, High = 3, Very high = 4</div>
+        <div class="matrix-canvas-wrap">
+          <canvas id="matrix-canvas" width="680" height="680"></canvas>
+        </div>
+        <div class="matrix-quadrant-labels">
+          <div class="mq-label mq-tl">⏳ Quick wins, limited value<span>High feasibility · Lower value</span></div>
+          <div class="mq-label mq-tr">⭐ Prioritize now<span>High feasibility · High value</span></div>
+          <div class="mq-label mq-bl">🚫 Deprioritize<span>Lower feasibility · Lower value</span></div>
+          <div class="mq-label mq-br">🔬 Strategic bets<span>Lower feasibility · High value</span></div>
+        </div>
+        <div class="matrix-legend" id="matrix-legend"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="save-toast" id="save-toast">
+  <span class="save-toast-icon" id="toast-icon">✓</span>
+  <span id="toast-msg">Saved!</span>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SB_URL = "https://jzttxjxioqpudqcrpylw.supabase.co";
+const SB_KEY = "sb_publishable_MdJVXhohY3MXNiXhIi8aRw_O0SPYDVH";
+
+// Table name — ensure this exists in your Supabase project
+const TABLE = "lever_votes_v2";
+
+// ── LEVERS ──────────────────────────────────────────────────────────────────
+const LEVERS = [
+  { id: 1, name: "AI Agent handling", desc: "Deploy AI agent to resolve routine voice & email inquiries autonomously", origin: "Mistral + Kearney" },
+  { id: 2, name: "Proactive comms", desc: "Reduce inbound demand via proactive, customized customer notifications", origin: "Mistral" },
+  { id: 3, name: "OTI fixes", desc: "Reduce order intake-related errors using AI-enhanced OCR & validation rules", origin: "Mistral" },
+  { id: 4, name: "Skillset of the future", desc: "Modernize competency model (incl. AI fluency); deploy in-context AI nudges for on-the-job learning", origin: "Mistral + FoW Lab" },
+  { id: 5, name: "Unified desktop w/ AI assistant", desc: "Consolidate systems into single workspace with embedded AI guidance", origin: "Mistral + Kearney" },
+  { id: 6, name: "Centralized KMS", desc: "Consolidate agent knowledge (incl. SOPs, FAQs) into single AI-searchable governed repository", origin: "Mistral + Kearney" },
+  { id: 7, name: "Dynamic routing", desc: "Intelligently route contacts based on skill-based matching; dynamically manage load", origin: "Mistral + Butterfly" },
+];
+
+const SUMMARY_OPTS = ["Very high", "High", "Medium", "Low"];
+const BREADTH_OPTS = ["Org wide", "Most teams", "Less than half", "Few people"];
+const DEPTH_OPTS   = ["All processes", "Most processes", "Less than half", "Few processes"];
+
+const COLS = [
+  { key: "val_summary",   label: "Summary",          opts: SUMMARY_OPTS, group: "val" },
+  { key: "val_breadth",   label: "Breadth of Impact", opts: BREADTH_OPTS, group: "val" },
+  { key: "val_depth",     label: "Depth of Impact",   opts: DEPTH_OPTS,   group: "val" },
+  { key: "feas_summary",  label: "Summary",           opts: SUMMARY_OPTS, group: "feas" },
+  { key: "feas_breadth",  label: "Breadth of Impact", opts: BREADTH_OPTS, group: "feas" },
+  { key: "feas_depth",    label: "Depth of Impact",   opts: DEPTH_OPTS,   group: "feas" },
+];
+
+let currentUser = "";
+let currentRole = "";
+let votes = {}; // { "1__val_summary": "High", ... }
+let saveTimer = null;
+
+// ── SUPABASE ─────────────────────────────────────────────────────────────────
+async function sbReq(method, path, body) {
+  try {
+    const r = await fetch(SB_URL + "/rest/v1/" + path, {
+      method,
+      headers: {
+        "apikey": SB_KEY,
+        "Authorization": "Bearer " + SB_KEY,
+        "Content-Type": "application/json",
+        "Prefer": method === "POST" ? "resolution=merge-duplicates" : ""
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) {
+      const err = await r.text();
+      console.warn("Supabase error:", err);
+      return null;
+    }
+    const txt = await r.text();
+    return txt ? JSON.parse(txt) : null;
+  } catch(e) {
+    console.warn("Network error:", e);
+    return null;
+  }
+}
+
+// ── HYPE SCREEN ───────────────────────────────────────────────────────────────
+(function buildHypeBg() {
+  const bg = document.getElementById("hype-bg");
+  const sizes = [300, 500, 700, 900];
+  sizes.forEach(sz => {
+    const c = document.createElement("div");
+    c.className = "hype-circle";
+    c.style.cssText = `width:${sz}px;height:${sz}px;left:calc(50% - ${sz/2}px);top:calc(50% - ${sz/2}px)`;
+    bg.appendChild(c);
+  });
+})();
+
+function showLogin() {
+  const h = document.getElementById("hype-screen");
+  h.style.transition = "opacity 0.5s";
+  h.style.opacity = "0";
+  setTimeout(() => {
+    h.style.display = "none";
+    const l = document.getElementById("login-screen");
+    l.style.display = "flex";
+    document.getElementById("name-input").focus();
+  }, 500);
+}
+
+// ── ROLE SELECTION ────────────────────────────────────────────────────────────
+function selectRole(el, role) {
+  document.querySelectorAll(".role-chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  currentRole = role;
+}
+
+// ── START APP ─────────────────────────────────────────────────────────────────
+async function startApp() {
+  const email = document.getElementById("name-input").value.trim();
+  if (!email) { document.getElementById("name-input").focus(); return; }
+  currentUser = email;
+  // Derive a friendly display name from the email (e.g. "sarah.johnson@jnj.com" → "Sarah Johnson")
+  const localPart = email.split("@")[0];
+  const displayName = localPart.split(/[._\-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  document.getElementById("login-screen").style.display = "none";
+  const app = document.getElementById("app-screen");
+  app.style.display = "flex";
+  app.style.flexDirection = "column";
+  document.getElementById("header-name").textContent = displayName;
+  document.getElementById("header-avatar").textContent = displayName.charAt(0).toUpperCase();
+  buildTable();
+  await loadMyVotes();
+}
+
+// ── BUILD TABLE ───────────────────────────────────────────────────────────────
+function buildTable() {
+  const tbody = document.getElementById("levers-tbody");
+  tbody.innerHTML = "";
+  LEVERS.forEach(lever => {
+    const tr = document.createElement("tr");
+    tr.className = "lever-row";
+    tr.id = "row-" + lever.id;
+
+    let cells = `
+      <td class="cell-lever">
+        <span class="lever-num">${lever.id}</span>
+        <div style="display:inline-block;vertical-align:middle;max-width:160px">
+          <div class="lever-name">${lever.name}</div>
+          <div class="lever-desc">${lever.desc}</div>
+          <div class="lever-origin">${lever.origin}</div>
+        </div>
+      </td>`;
+
+    COLS.forEach((col, idx) => {
+      const isGroup = idx === 3; // first feas col gets border
+      const voteKey = lever.id + "__" + col.key;
+      const cls = col.group === "val" ? "val-cell" : "feas-cell";
+      const selectCls = col.group === "val" ? "val-select" : "feas-select";
+      cells += `
+        <td class="cell-dropdown ${cls}${isGroup ? " group-border" : ""}">
+          <div class="select-wrap">
+            <select class="lever-select ${selectCls}" id="sel-${voteKey}"
+              onchange="onSelectChange('${voteKey}', this)">
+              <option value="">— select —</option>
+              ${col.opts.map(o => `<option value="${o}">${o}</option>`).join("")}
+            </select>
+            <span class="select-caret">▾</span>
+          </div>
+        </td>`;
+    });
+
+    cells += `<td class="cell-status"><span class="status-dot" id="dot-${lever.id}"></span></td>`;
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── LOAD MY VOTES ─────────────────────────────────────────────────────────────
+async function loadMyVotes() {
+  const rows = await sbReq("GET",
+    TABLE + "?user_name=eq." + encodeURIComponent(currentUser) + "&select=lever_id,col_key,value", null);
+  if (!rows) return;
+  rows.forEach(r => {
+    const voteKey = r.lever_id + "__" + r.col_key;
+    votes[voteKey] = r.value;
+    const sel = document.getElementById("sel-" + voteKey);
+    if (sel) {
+      sel.value = r.value;
+      applySelectStyle(sel, r.value);
+    }
+  });
+  updateProgress();
+}
+
+// ── ON SELECT CHANGE ──────────────────────────────────────────────────────────
+function onSelectChange(voteKey, sel) {
+  const val = sel.value;
+  votes[voteKey] = val;
+  applySelectStyle(sel, val);
+  updateProgress();
+  scheduleSave(voteKey, val);
+}
+
+function applySelectStyle(sel, val) {
+  sel.setAttribute("data-val", val || "");
+  sel.classList.toggle("has-value", !!val);
+}
+
+function scheduleSave(voteKey, val) {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveVote(voteKey, val), 600);
+}
+
+async function saveVote(voteKey, val) {
+  const parts = voteKey.split("__");
+  const leverId = parseInt(parts[0]);
+  const colKey = parts[1];
+  if (!val) return;
+  const row = {
+    user_name: currentUser,
+    user_role: currentRole || "Unspecified",
+    lever_id: leverId,
+    col_key: colKey,
+    value: val,
+    updated_at: new Date().toISOString()
+  };
+  const res = await sbReq("POST", TABLE, [row]);
+  showToast(res !== null ? "✓" : "⚠", res !== null ? "Saved!" : "Saved locally (offline)");
+}
+
+// ── SUBMIT ALL ────────────────────────────────────────────────────────────────
+async function submitAll() {
+  const filled = Object.entries(votes).filter(([k,v]) => v);
+  if (filled.length === 0) { showToast("!", "Nothing to submit yet"); return; }
+  const rows = filled.map(([key, val]) => {
+    const [leverId, colKey] = [parseInt(key.split("__")[0]), key.split("__")[1]];
+    return { user_name: currentUser, user_role: currentRole || "Unspecified", lever_id: leverId, col_key: colKey, value: val, updated_at: new Date().toISOString() };
+  });
+  const res = await sbReq("POST", TABLE, rows);
+  if (res !== null) {
+    showToast("🎉", "All responses submitted!");
+    launchConfetti();
+  } else {
+    showToast("⚠", "Submit failed — check connection");
+  }
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const total = LEVERS.length * COLS.length;
+  const filled = Object.values(votes).filter(v => v).length;
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById("progress-fill").style.width = pct + "%";
+
+  LEVERS.forEach(lever => {
+    const leverFilled = COLS.every(col => votes[lever.id + "__" + col.key]);
+    const dot = document.getElementById("dot-" + lever.id);
+    const row = document.getElementById("row-" + lever.id);
+    if (dot) dot.classList.toggle("done", leverFilled);
+    if (row) row.classList.toggle("completed", leverFilled);
+  });
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(icon, msg) {
+  const t = document.getElementById("save-toast");
+  document.getElementById("toast-icon").textContent = icon;
+  document.getElementById("toast-msg").textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function showDashboard() {
+  document.getElementById("dashboard-screen").style.display = "block";
+  await loadDashboard();
+}
+
+function closeDashboard() {
+  document.getElementById("dashboard-screen").style.display = "none";
+}
+
+function switchDashTab(tab, btn) {
+  document.querySelectorAll(".dash-tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".dash-tab-panel").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("dash-panel-" + tab).classList.add("active");
+  if (tab === "matrix") drawMatrix(window._lastDashRows || []);
+}
+
+async function loadDashboard() {
+  const rows = await sbReq("GET", TABLE + "?select=user_name,user_role,lever_id,col_key,value", null);
+  window._lastDashRows = rows || [];
+  if (!rows) {
+    document.getElementById("results-tbody").innerHTML =
+      '<tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8">Could not load data. Check Supabase config.</td></tr>';
+    return;
+  }
+
+  // Stats
+  const users = [...new Set(rows.map(r => r.user_name))];
+  document.getElementById("stat-respondents").textContent = users.length;
+  document.getElementById("stat-responses").textContent = rows.length;
+
+  // Avg completion
+  const totalPossible = LEVERS.length * COLS.length;
+  const avgCompletion = users.length === 0 ? 0 :
+    Math.round(users.reduce((s, u) => {
+      return s + rows.filter(r => r.user_name === u && r.value).length;
+    }, 0) / users.length / totalPossible * 100);
+  document.getElementById("stat-completion").textContent = avgCompletion + "%";
+
+  // Top lever by value_summary consensus
+  const summaryScore = { "Very high": 4, "High": 3, "Medium": 2, "Low": 1 };
+  const leverScores = LEVERS.map(l => {
+    const valRows = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary" && r.value);
+    const score = valRows.reduce((s, r) => s + (summaryScore[r.value] || 0), 0) / (valRows.length || 1);
+    return { name: l.name, score };
+  }).sort((a,b) => b.score - a.score);
+  document.getElementById("stat-top").textContent = leverScores[0]?.name || "—";
+
+  // Results table — mode per cell
+  const tbody = document.getElementById("results-tbody");
+  tbody.innerHTML = "";
+  LEVERS.forEach(lever => {
+    const tr = document.createElement("tr");
+    let cells = `<td><span class="lever-num">${lever.id}</span> <strong>${lever.name}</strong></td>`;
+    COLS.forEach((col, idx) => {
+      const cellRows = rows.filter(r => r.lever_id === lever.id && r.col_key === col.key && r.value);
+      const mode = getMode(cellRows.map(r => r.value));
+      const pillCls = getPillClass(mode);
+      cells += `<td${idx === 3 ? ' style="border-left:1.5px solid var(--border)"' : ''}>
+        ${mode ? `<span class="dash-pill ${pillCls}">${mode}</span>` : '<span class="dash-pill pill-empty">—</span>'}
+      </td>`;
+    });
+    const respCount = [...new Set(rows.filter(r => r.lever_id === lever.id).map(r => r.user_name))].length;
+    cells += `<td style="text-align:center;font-weight:700;color:var(--text-soft)">${respCount}</td>`;
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+
+  // Respondents
+  const grid = document.getElementById("respondents-grid");
+  grid.innerHTML = "";
+  if (users.length === 0) {
+    grid.innerHTML = '<div style="color:#94a3b8;font-size:13px">No responses yet</div>';
+  } else {
+    users.forEach(u => {
+      const userRows = rows.filter(r => r.user_name === u && r.value);
+      const role = rows.find(r => r.user_name === u)?.user_role || "";
+      const pct = Math.round(userRows.length / totalPossible * 100);
+      const card = document.createElement("div");
+      card.className = "respondent-card";
+      card.innerHTML = `
+        <div class="respondent-avatar">${u.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="respondent-name">${u}</div>
+          <div class="respondent-meta">${role}</div>
+        </div>
+        <div class="respondent-progress">${pct}%</div>`;
+      grid.appendChild(card);
+    });
+  }
+}
+
+function getMode(arr) {
+  if (!arr.length) return null;
+  const freq = {};
+  arr.forEach(v => { freq[v] = (freq[v] || 0) + 1; });
+  return Object.entries(freq).sort((a,b) => b[1]-a[1])[0][0];
+}
+
+function getPillClass(val) {
+  if (!val) return "pill-empty";
+  const map = {
+    "Very high": "pill-veryhigh", "High": "pill-high", "Medium": "pill-medium", "Low": "pill-low",
+    "Org wide": "pill-orgwide", "Most teams": "pill-mostteams",
+    "Less than half": "pill-lessthan", "Few people": "pill-few",
+    "All processes": "pill-orgwide", "Most processes": "pill-mostteams",
+    "Few processes": "pill-few"
+  };
+  return map[val] || "pill-empty";
+}
+
+// ── 2×2 MATRIX ───────────────────────────────────────────────────────────────
+function drawMatrix(rows) {
+  const canvas = document.getElementById("matrix-canvas");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = 680, H = 680;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const PAD = 64; // space for axis labels
+  const INNER = W - PAD * 2;
+
+  const scoreMap = { "Very high": 4, "High": 3, "Medium": 2, "Low": 1 };
+
+  // Compute avg val_summary and feas_summary per lever
+  const leverPoints = LEVERS.map(l => {
+    const valRows = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary" && r.value);
+    const feasRows = rows.filter(r => r.lever_id === l.id && r.col_key === "feas_summary" && r.value);
+    const valAvg = valRows.length ? valRows.reduce((s,r) => s + (scoreMap[r.value] || 0), 0) / valRows.length : null;
+    const feasAvg = feasRows.length ? feasRows.reduce((s,r) => s + (scoreMap[r.value] || 0), 0) / feasRows.length : null;
+    return { lever: l, valAvg, feasAvg, nVal: valRows.length, nFeas: feasRows.length };
+  });
+
+  // ── Background quadrants ──
+  const mid = PAD + INNER / 2;
+
+  // Bottom-left: Deprioritize (low val, low feas)
+  ctx.fillStyle = "rgba(254,242,242,0.6)";
+  ctx.fillRect(PAD, mid, INNER/2, INNER/2);
+  // Bottom-right: Strategic bets (high val, low feas)
+  ctx.fillStyle = "rgba(239,246,255,0.6)";
+  ctx.fillRect(mid, mid, INNER/2, INNER/2);
+  // Top-left: Quick wins (low val, high feas)
+  ctx.fillStyle = "rgba(255,247,237,0.6)";
+  ctx.fillRect(PAD, PAD, INNER/2, INNER/2);
+  // Top-right: Prioritize now (high val, high feas)
+  ctx.fillStyle = "rgba(236,253,245,0.6)";
+  ctx.fillRect(mid, PAD, INNER/2, INNER/2);
+
+  // ── Grid lines ──
+  ctx.strokeStyle = "#E2E8F0";
+  ctx.lineWidth = 1;
+  // outer border
+  ctx.strokeRect(PAD, PAD, INNER, INNER);
+  // midlines
+  ctx.beginPath();
+  ctx.moveTo(mid, PAD); ctx.lineTo(mid, PAD + INNER);
+  ctx.moveTo(PAD, mid); ctx.lineTo(PAD + INNER, mid);
+  ctx.stroke();
+
+  // Subtle tick lines at 1,2,3,4
+  ctx.strokeStyle = "rgba(226,232,240,0.5)";
+  ctx.lineWidth = 0.5;
+  [1,2,3,4].forEach(v => {
+    const xPos = PAD + ((v - 1) / 3) * INNER;
+    const yPos = PAD + INNER - ((v - 1) / 3) * INNER;
+    ctx.beginPath(); ctx.moveTo(xPos, PAD); ctx.lineTo(xPos, PAD + INNER); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD, yPos); ctx.lineTo(PAD + INNER, yPos); ctx.stroke();
+  });
+
+  // ── Quadrant labels ──
+  ctx.font = "bold 11px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  const qlabels = [
+    { text: "⭐ Prioritize", x: mid + INNER/4, y: PAD + 18, color: "#059669" },
+    { text: "⏳ Quick wins", x: PAD + INNER/4, y: PAD + 18, color: "#D97706" },
+    { text: "🔬 Strategic bets", x: mid + INNER/4, y: PAD + INNER - 8, color: "#1d4ed8" },
+    { text: "🚫 Deprioritize", x: PAD + INNER/4, y: PAD + INNER - 8, color: "#DC2626" },
+  ];
+  qlabels.forEach(q => {
+    ctx.fillStyle = q.color; ctx.globalAlpha = 0.65;
+    ctx.fillText(q.text, q.x, q.y);
+  });
+  ctx.globalAlpha = 1;
+
+  // ── Axis labels ──
+  ctx.fillStyle = "#64748b";
+  ctx.font = "bold 12px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  // X axis label (Value)
+  ctx.fillText("← Lower Value          Higher Value →", PAD + INNER/2, H - 12);
+  // Y axis label (Feasibility) — rotated
+  ctx.save();
+  ctx.translate(14, PAD + INNER/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText("← Lower Feasibility          Higher Feasibility →", 0, 0);
+  ctx.restore();
+
+  // Tick labels on axes
+  ctx.font = "500 10px DM Sans, sans-serif";
+  ctx.fillStyle = "#94a3b8";
+  const tickLabels = ["Low", "Med", "High", "V.High"];
+  tickLabels.forEach((lbl, i) => {
+    const xPos = PAD + (i / 3) * INNER;
+    const yPos = PAD + INNER - (i / 3) * INNER;
+    ctx.textAlign = "center";
+    ctx.fillText(lbl, xPos, PAD + INNER + 16);
+    ctx.textAlign = "right";
+    ctx.fillText(lbl, PAD - 6, yPos + 4);
+  });
+
+  // ── Dot colors per lever ──
+  const DOT_COLORS = [
+    "#CC0000","#2563EB","#059669","#D97706","#7C3AED","#0891B2","#DB2777"
+  ];
+
+  // ── Helper: scatter/jitter overlapping dots ──
+  const placed = [];
+  function jitter(cx, cy, r) {
+    const key = Math.round(cx) + "," + Math.round(cy);
+    const count = placed.filter(p => p === key).length;
+    placed.push(key);
+    if (count === 0) return { x: cx, y: cy };
+    const angle = (count - 1) * (Math.PI * 2 / 6);
+    return { x: cx + Math.cos(angle) * (r + 4), y: cy + Math.sin(angle) * (r + 4) };
+  }
+
+  // ── Draw dots ──
+  const DOT_R = 22;
+  const legend = document.getElementById("matrix-legend");
+  legend.innerHTML = "";
+
+  leverPoints.forEach((pt, i) => {
+    const color = DOT_COLORS[i % DOT_COLORS.length];
+    // Build legend regardless
+    const li = document.createElement("div");
+    li.className = "matrix-legend-item";
+    li.innerHTML = `<span class="matrix-legend-dot" style="background:${color}"></span>${pt.lever.id}. ${pt.lever.name}`;
+    legend.appendChild(li);
+
+    if (pt.valAvg === null || pt.feasAvg === null) {
+      // Draw greyed placeholder at center with dashed border
+      const cx = PAD + ((2.5 - 1) / 3) * INNER;
+      const cy = PAD + INNER - ((2.5 - 1) / 3) * INNER;
+      ctx.save();
+      ctx.setLineDash([3,3]);
+      ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, cy, DOT_R * 0.7, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#94a3b8"; ctx.font = "bold 11px DM Sans, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(pt.lever.id, cx, cy);
+      ctx.restore();
+      return;
+    }
+
+    // Map score 1–4 to canvas coords
+    // X = value (1=left, 4=right), Y = feasibility (1=bottom, 4=top)
+    const rawX = PAD + ((pt.valAvg - 1) / 3) * INNER;
+    const rawY = PAD + INNER - ((pt.feasAvg - 1) / 3) * INNER;
+    const { x: cx, y: cy } = jitter(rawX, rawY, DOT_R);
+
+    // Shadow
+    ctx.save();
+    ctx.shadowColor = color + "55";
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 3;
+
+    // Circle fill
+    ctx.beginPath();
+    ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    ctx.restore();
+
+    // White ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Number label
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 13px DM Sans, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(pt.lever.id, cx, cy);
+
+    // Avg score tooltip below dot (small)
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "500 9px DM Sans, sans-serif";
+    ctx.textBaseline = "top";
+    ctx.fillText(`V:${pt.valAvg.toFixed(1)} F:${pt.feasAvg.toFixed(1)}`, cx, cy + DOT_R + 4);
+  });
+
+  ctx.textBaseline = "alphabetic";
+}
+
+// ── CONFETTI ──────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const existing = document.getElementById("confetti-canvas");
+  if (existing) existing.remove();
+  const canvas = document.createElement("canvas");
+  canvas.id = "confetti-canvas";
+  canvas.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999";
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  const colors = ["#CC0000","#10B981","#3B82F6","#F59E0B","#8B5CF6","#EF4444","#fff","#1B1B2F"];
+  const pieces = Array.from({length: 140}, () => {
+    const angle = Math.PI * 2 * Math.random();
+    const speed = 4 + Math.random() * 10;
+    return { x: canvas.width/2, y: canvas.height*0.4, w: 7+Math.random()*9, h: 4+Math.random()*7,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed - 6,
+      rotation: Math.random()*360, rotSpeed: (Math.random()-0.5)*10, opacity: 1 };
+  });
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      if (p.opacity <= 0) return;
+      p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.vx *= 0.99;
+      p.rotation += p.rotSpeed; p.opacity -= 0.013; alive = true;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rotation*Math.PI/180);
+      ctx.globalAlpha = Math.max(0,p.opacity); ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    });
+    if (alive && ++frame < 250) requestAnimationFrame(draw);
+    else canvas.remove();
+  }
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>
