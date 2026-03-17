@@ -1092,23 +1092,32 @@ let currentRole = "";
 // ── SUPABASE ─────────────────────────────────────────────────────────────────
 async function sbReq(method, path, body) {
   try {
-    const r = await fetch(SB_URL + "/rest/v1/" + path, {
+    // For POST (upsert), append on_conflict to tell PostgREST which unique key to use
+    const url = SB_URL + "/rest/v1/" + path +
+      (method === "POST" ? "?on_conflict=user_name,lever_id,col_key" : "");
+
+    const headers = {
+      "apikey": SB_KEY,
+      "Authorization": "Bearer " + SB_KEY,
+      "Content-Type": "application/json",
+    };
+    if (method === "POST") {
+      headers["Prefer"] = "resolution=merge-duplicates,return=minimal";
+    }
+
+    const r = await fetch(url, {
       method,
-      headers: {
-        "apikey": SB_KEY,
-        "Authorization": "Bearer " + SB_KEY,
-        "Content-Type": "application/json",
-        "Prefer": method === "POST" ? "resolution=merge-duplicates" : ""
-      },
+      headers,
       body: body ? JSON.stringify(body) : undefined
     });
+
     if (!r.ok) {
       const err = await r.text();
-      console.warn("Supabase error:", err);
+      console.warn("Supabase error:", r.status, err);
       return null;
     }
     const txt = await r.text();
-    return txt ? JSON.parse(txt) : null;
+    return txt ? JSON.parse(txt) : true; // return true for empty 204 responses
   } catch(e) {
     console.warn("Network error:", e);
     return null;
