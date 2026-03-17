@@ -503,6 +503,36 @@
   .pill-few    { background: #FFF5F5; color: #991B1B; }
   .pill-empty  { background: #F1F5F9; color: #94a3b8; font-style: italic; }
 
+  /* ── Submit success overlay ── */
+  #submit-success-overlay {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(27,27,47,0.75); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  #submit-success-overlay.show { opacity: 1; }
+  .success-card {
+    background: var(--white); border-radius: 24px;
+    padding: 52px 48px; text-align: center; max-width: 440px; width: 90vw;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    transform: translateY(24px); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+  }
+  #submit-success-overlay.show .success-card { transform: translateY(0); }
+  .success-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #D1FAE5; display: flex; align-items: center;
+    justify-content: center; font-size: 36px; margin: 0 auto 20px;
+  }
+  .success-title { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+  .success-sub { font-size: 15px; color: var(--text-soft); line-height: 1.6; margin-bottom: 28px; }
+  .success-sub strong { color: var(--text); }
+  .btn-success-close {
+    padding: 13px 32px; background: var(--red); color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .btn-success-close:hover { background: var(--red-dark); }
+
   /* Respondents list */
   .respondents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
   .respondent-card {
@@ -1010,6 +1040,19 @@
   </div>
 </div>
 
+<!-- Submit Success Overlay -->
+<div id="submit-success-overlay">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Rankings submitted!</div>
+    <div class="success-sub">
+      Thank you, <strong><span id="success-name"></span></strong>.<br>
+      Your prioritization rankings for <strong>Value</strong> and <strong>Feasibility / Speed</strong> have been saved. They'll be reflected in the live dashboard and 2×2 matrix.
+    </div>
+    <button class="btn-success-close" onclick="closeSubmitSuccess()">Done ✓</button>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="save-toast" id="save-toast">
   <span class="save-toast-icon" id="toast-icon">✓</span>
@@ -1045,8 +1088,6 @@ const INTERACTIVE_COLS = COLS.filter(c => !c.static);
 
 let currentUser = "";
 let currentRole = "";
-let votes = {}; // { "1__val_summary": "High", ... }
-let saveTimer = null;
 
 // ── SUPABASE ─────────────────────────────────────────────────────────────────
 async function sbReq(method, path, body) {
@@ -1257,10 +1298,12 @@ function buildTable() {
 }
 
 // ── SAVE RANK ORDER ───────────────────────────────────────────────────────────
+const saveTimers = { val: null, feas: null }; // separate timers per group
+const userHasDragged = { val: false, feas: false }; // track actual user interaction
+
 function saveRankOrder(group) {
   const colKey = group === "val" ? "rank_val" : "rank_feas";
   const order = rankOrder[group];
-  // Save each lever's rank as a separate row: lever_id, col_key=rank_val, value=rank_number
   const rows = order.map((leverId, idx) => ({
     user_name: currentUser,
     user_role: currentRole || "Unspecified",
@@ -1269,9 +1312,10 @@ function saveRankOrder(group) {
     value: String(idx + 1),
     updated_at: new Date().toISOString()
   }));
+  userHasDragged[group] = true;
   showToast("💾", "Saving...", false);
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
+  clearTimeout(saveTimers[group]);
+  saveTimers[group] = setTimeout(async () => {
     const res = await sbReq("POST", TABLE, rows);
     showToast(res !== null ? "✓" : "⚠", res !== null ? "Rank saved" : "Offline — retry on submit");
   }, 1000);
@@ -1289,7 +1333,8 @@ async function loadMyVotes() {
     const rankRows = rows.filter(r => r.col_key === colKey);
     if (rankRows.length === 7) {
       const sorted = rankRows.sort((a,b) => parseInt(a.value) - parseInt(b.value));
-      rankOrder[group] = sorted.map(r => r.lever_id);
+      rankOrder[group] = sorted.map(r => parseInt(r.lever_id)); // ensure integer type
+      userHasDragged[group] = true; // mark as previously submitted
       buildRankList(group);
     }
   });
@@ -1298,15 +1343,61 @@ async function loadMyVotes() {
 }
 
 // ── PROGRESS ──────────────────────────────────────────────────────────────────
-function updateProgress(scrollToFirst = false) {
-  // Progress = whether both rank lists have been touched (i.e. differ from default)
-  const valRanked  = JSON.stringify(rankOrder.val)  !== JSON.stringify(LEVERS.map(l => l.id));
-  const feasRanked = JSON.stringify(rankOrder.feas) !== JSON.stringify(LEVERS.map(l => l.id));
-  const count = (valRanked ? 1 : 0) + (feasRanked ? 1 : 0);
+function updateProgress() {
+  const count = (userHasDragged.val ? 1 : 0) + (userHasDragged.feas ? 1 : 0);
   const pct = count / 2 * 100;
   document.getElementById("progress-fill").style.width = pct + "%";
   document.getElementById("btn-submit-all").textContent =
     `Submit Rankings (${count}/2) ✓`;
+}
+
+// ── SUBMIT ALL ────────────────────────────────────────────────────────────────
+async function submitAll() {
+  if (!userHasDragged.val && !userHasDragged.feas) {
+    showToast("!", "Drag the levers to set your rankings first");
+    return;
+  }
+  const btn = document.getElementById("btn-submit-all");
+  btn.textContent = "⏳ Submitting...";
+  btn.disabled = true;
+
+  const rows = [];
+  ["val","feas"].forEach(group => {
+    const colKey = group === "val" ? "rank_val" : "rank_feas";
+    rankOrder[group].forEach((leverId, idx) => {
+      rows.push({ user_name: currentUser, user_role: currentRole || "Unspecified",
+        lever_id: leverId, col_key: colKey, value: String(idx + 1),
+        updated_at: new Date().toISOString() });
+    });
+  });
+
+  const res = await sbReq("POST", TABLE, rows);
+  btn.disabled = false;
+  updateProgress();
+
+  if (res !== null) {
+    launchConfetti();
+    showSubmitSuccess();
+  } else {
+    showToast("⚠", "Submit failed — check connection");
+  }
+}
+
+function showSubmitSuccess() {
+  const overlay = document.getElementById("submit-success-overlay");
+  const nameEl  = document.getElementById("success-name");
+  // Derive display name from email
+  const localPart = currentUser.split("@")[0];
+  const displayName = localPart.split(/[._\-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  nameEl.textContent = displayName;
+  overlay.style.display = "flex";
+  setTimeout(() => overlay.classList.add("show"), 10);
+}
+
+function closeSubmitSuccess() {
+  const overlay = document.getElementById("submit-success-overlay");
+  overlay.classList.remove("show");
+  setTimeout(() => { overlay.style.display = "none"; }, 400);
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -1332,12 +1423,17 @@ function closeDashboard() {
   document.getElementById("dashboard-screen").style.display = "none";
 }
 
-function switchDashTab(tab, btn) {
+async function switchDashTab(tab, btn) {
   document.querySelectorAll(".dash-tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".dash-tab-panel").forEach(p => p.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("dash-panel-" + tab).classList.add("active");
-  if (tab === "matrix") drawMatrix(window._lastDashRows || []);
+  if (tab === "matrix") {
+    // Always fetch fresh data when switching to matrix tab
+    const rows = await sbReq("GET", TABLE + "?select=user_name,user_role,lever_id,col_key,value", null);
+    if (rows) window._lastDashRows = rows;
+    drawMatrix(window._lastDashRows || []);
+  }
 }
 
 async function loadDashboard() {
@@ -1750,7 +1846,17 @@ async function refreshMatrix() {
   const btn = document.getElementById("btn-refresh-matrix");
   if (btn) { btn.textContent = "⏳ Loading..."; btn.disabled = true; }
   const rows = await sbReq("GET", TABLE + "?select=user_name,user_role,lever_id,col_key,value", null);
-  if (rows) { window._lastDashRows = rows; drawMatrix(rows); }
+  if (rows) {
+    window._lastDashRows = rows;
+    // Ensure canvas is in the DOM and has layout before drawing
+    const panel = document.getElementById("dash-panel-matrix");
+    const wasHidden = panel && !panel.classList.contains("active");
+    if (wasHidden) panel.style.display = "block";
+    drawMatrix(rows);
+    if (wasHidden) panel.style.display = "";
+  } else {
+    showToast("⚠", "Could not fetch latest data");
+  }
   if (btn) { btn.textContent = "🔄 Refresh"; btn.disabled = false; }
 }
 
