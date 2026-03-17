@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>JJMT — Lever Assessment</title>
+<title>Project Mistral — Lever Assessment</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
 
@@ -411,25 +411,7 @@
   }
   .status-dot.done { background: var(--green); transform: scale(1.2); }
 
-  /* Color coding for selected values — border only, no background fill */
-  .lever-select[data-val="Very High Value"] { border-color: #059669; border-width: 2px; }
-  .lever-select[data-val="High Value"]      { border-color: #2563EB; border-width: 2px; }
-  .lever-select[data-val="Medium Value"]    { border-color: #D97706; border-width: 2px; }
-  .lever-select[data-val="Low Value"]       { border-color: #DC2626; border-width: 2px; }
-
-  .lever-select[data-val="Immediate"]       { border-color: #059669; border-width: 2px; }
-  .lever-select[data-val="Short-term"]      { border-color: #2563EB; border-width: 2px; }
-  .lever-select[data-val="Medium-term"]     { border-color: #D97706; border-width: 2px; }
-  .lever-select[data-val="Long-term"]       { border-color: #DC2626; border-width: 2px; }
-
-  .lever-select[data-val="Org wide"]        { border-color: #059669; border-width: 2px; }
-  .lever-select[data-val="Most teams"]      { border-color: #2563EB; border-width: 2px; }
-  .lever-select[data-val="Less than half"]  { border-color: #D97706; border-width: 2px; }
-  .lever-select[data-val="Few people"]      { border-color: #DC2626; border-width: 2px; }
-
-  .lever-select[data-val="All processes"]   { border-color: #059669; border-width: 2px; }
-  .lever-select[data-val="Most processes"]  { border-color: #2563EB; border-width: 2px; }
-  .lever-select[data-val="Few processes"]   { border-color: #DC2626; border-width: 2px; }
+  /* Color coding for selected values — kept for reference only */
 
   /* Save status */
   .save-toast {
@@ -514,15 +496,12 @@
     padding: 3px 10px; border-radius: 20px;
     font-size: 11px; font-weight: 700;
   }
-  .pill-veryhigh { background: #ECFDF5; color: #065F46; }
-  .pill-high { background: #F0FDF4; color: #166534; }
-  .pill-medium { background: #FFFBEB; color: #92400E; }
-  .pill-low { background: #FFF5F5; color: #991B1B; }
-  .pill-orgwide { background: #EEF2FF; color: #3730A3; }
-  .pill-mostteams { background: #F5F3FF; color: #4C1D95; }
-  .pill-lessthan { background: #FFFBEB; color: #92400E; }
-  .pill-few { background: #FFF5F5; color: #991B1B; }
-  .pill-empty { background: #F1F5F9; color: #94a3b8; font-style: italic; }
+  .pill-veryhigh { background: #ECFDF5; color: #065F46; } /* kept for compat */
+  .pill-high   { background: #D1FAE5; color: #065F46; }
+  .pill-medium { background: #FEF3C7; color: #78350F; }
+  .pill-low    { background: #FEE2E2; color: #991B1B; }
+  .pill-few    { background: #FFF5F5; color: #991B1B; }
+  .pill-empty  { background: #F1F5F9; color: #94a3b8; font-style: italic; }
 
   /* Respondents list */
   .respondents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
@@ -817,7 +796,7 @@
 <div id="hype-screen">
   <div class="hype-bg" id="hype-bg"></div>
   <div class="hype-content">
-    <div class="hype-eyebrow">J&J MedTech · CS Transformation</div>
+    <div class="hype-eyebrow">Project Mistral · AI Summit</div>
     <div class="hype-title">Lever<br><span>Assessment</span></div>
     <div class="hype-sub">Rate each initiative on value and feasibility to help prioritize our transformation roadmap</div>
     <button class="btn-hype" onclick="showLogin()">Begin Assessment →</button>
@@ -828,8 +807,8 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <div class="login-logo-mark">JJ</div>
-      <div class="login-logo-text">MedTech <span>CS</span></div>
+      <div class="login-logo-mark">PM</div>
+      <div class="login-logo-text">Project <span>Mistral</span></div>
     </div>
     <div class="login-heading">Who are you?</div>
     <div class="login-sub">Enter your email to begin the assessment</div>
@@ -844,8 +823,8 @@
 <div id="app-screen">
   <div class="app-header">
     <div class="header-left">
-      <div class="header-logo-mark">JJ</div>
-      <div class="header-title">Lever Assessment <span>· CS Transformation</span></div>
+      <div class="header-logo-mark">PM</div>
+      <div class="header-title">Lever Assessment <span>· Project Mistral</span></div>
     </div>
     <div class="header-right">
       <div class="header-user">
@@ -874,7 +853,7 @@
       <div class="drag-callout" id="drag-callout-val">
         <div class="drag-callout-icon">☝️</div>
         <div class="drag-callout-text">
-          <strong>Drag to reorder.</strong> Place the levers in the order you believe will deliver the greatest <strong>business value</strong> for the J&J MedTech CS transformation — highest priority at the top, lowest at the bottom.
+          <strong>Drag to reorder.</strong> Place the levers in the order you believe will deliver the greatest <strong>business value</strong> for the Project Mistral AI Summit — highest priority at the top, lowest at the bottom.
         </div>
       </div>
       <div class="drag-callout" id="drag-callout-feas" style="display:none; border-color:#BAE6FD; background:#F0F9FF;">
@@ -1005,8 +984,16 @@
     <!-- TAB: 2×2 MATRIX -->
     <div class="dash-tab-panel" id="dash-panel-matrix">
       <div class="matrix-wrap">
-        <div class="matrix-title">Value vs. Time to Value</div>
-        <div class="matrix-sub">Composite score per lever across all respondents · 60% pre-assigned label score + 40% crowd rank (rank 1 = highest priority)</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;margin-bottom:4px">
+          <div>
+            <div class="matrix-title">Value vs. Time to Value</div>
+            <div class="matrix-sub">Composite score per lever across all respondents · 60% pre-assigned label score + 40% crowd rank (rank 1 = highest priority)</div>
+          </div>
+          <button onclick="refreshMatrix()" id="btn-refresh-matrix"
+            style="flex-shrink:0;margin-left:16px;padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;display:flex;align-items:center;gap:6px">
+            🔄 Refresh
+          </button>
+        </div>
         <div class="matrix-canvas-wrap">
           <canvas id="matrix-canvas" width="680" height="680"></canvas>
         </div>
@@ -1048,14 +1035,11 @@ const LEVERS = [
   { id: 7, name: "Dynamic routing",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most teams",     val_depth: "Most processes", feas_summary_static: "Medium", feas_dependencies: "High",     feas_risks: "Moderate", feas_time: "Medium-term" },
 ];
 
-const VAL_SUMMARY_OPTS  = ["High", "Medium", "Low"];
-const FEAS_SUMMARY_OPTS = ["High", "Medium", "Low"];
-
 const COLS = [
-  { key: "val_summary",      label: "Value Summary",      opts: VAL_SUMMARY_OPTS,  group: "val",  static: false },
-  { key: "val_breadth_depth",label: "Breadth & Depth",    opts: [],                group: "val",  static: true, combined: true },
-  { key: "feas_summary",     label: "Feasibility Summary",opts: FEAS_SUMMARY_OPTS, group: "feas", static: false },
-  { key: "feas_details",     label: "Details",            opts: [],                group: "feas", static: true, feasDetails: true },
+  { key: "val_summary",      label: "Value Summary",       group: "val",  static: false },
+  { key: "val_breadth_depth",label: "Breadth & Depth",     group: "val",  static: true, combined: true },
+  { key: "feas_summary",     label: "Feasibility Summary", group: "feas", static: false },
+  { key: "feas_details",     label: "Details",             group: "feas", static: true, feasDetails: true },
 ];
 const INTERACTIVE_COLS = COLS.filter(c => !c.static);
 
@@ -1170,7 +1154,6 @@ const rankOrder = {
 function getRankTagClass(val) {
   const map = {
     "High": "high", "Medium": "medium", "Low": "low",
-    "Immediate": "immediate", "Medium-term": "medterm", "Long-term": "longterm",
   };
   return map[val] || "";
 }
@@ -1415,11 +1398,22 @@ async function loadDashboard() {
         cells += `<td><span class="dash-pill ${riskClass}">${lever.feas_risks}</span></td>`;
         cells += `<td><span class="dash-pill" style="background:#EFF6FF;color:#1E3A8A">${lever.feas_time}</span></td>`;
       } else {
-        const cellRows = rows.filter(r => r.lever_id === lever.id && r.col_key === col.key && r.value);
-        const mode = getMode(cellRows.map(r => r.value));
-        const pillCls = getPillClass(mode);
+        // Derive summary label from avg rank for this lever
+        // rank_val → val_summary, rank_feas → feas_summary
+        const rankColKey = col.key === "val_summary" ? "rank_val" : "rank_feas";
+        const rankRows = rows.filter(r => r.lever_id === lever.id && r.col_key === rankColKey && r.value);
+        let derivedLabel = null;
+        if (rankRows.length > 0) {
+          const avgRank = rankRows.reduce((s, r) => s + parseInt(r.value), 0) / rankRows.length;
+          // Map avg rank 1–7 to High/Medium/Low
+          // 1–2 = High, 3–5 = Medium, 6–7 = Low
+          derivedLabel = avgRank <= 2.5 ? "High" : avgRank <= 5 ? "Medium" : "Low";
+        }
+        const pillCls = getPillClass(derivedLabel);
         cells += `<td${borderStyle}>
-          ${mode ? `<span class="dash-pill ${pillCls}">${mode}</span>` : '<span class="dash-pill pill-empty">—</span>'}
+          ${derivedLabel
+            ? `<span class="dash-pill ${pillCls}">${derivedLabel}</span>`
+            : '<span class="dash-pill pill-empty">—</span>'}
         </td>`;
       }
     });
@@ -1454,22 +1448,9 @@ async function loadDashboard() {
   }
 }
 
-function getMode(arr) {
-  if (!arr.length) return null;
-  const freq = {};
-  arr.forEach(v => { freq[v] = (freq[v] || 0) + 1; });
-  return Object.entries(freq).sort((a,b) => b[1]-a[1])[0][0];
-}
-
 function getPillClass(val) {
   if (!val) return "pill-empty";
-  const map = {
-    "High": "pill-high", "Medium": "pill-medium", "Low": "pill-low",
-    "Org wide": "pill-orgwide", "Most teams": "pill-mostteams",
-    "Less than half": "pill-lessthan", "Few people": "pill-few",
-    "All processes": "pill-orgwide", "Most processes": "pill-mostteams",
-    "Few processes": "pill-few"
-  };
+  const map = { "High": "pill-high", "Medium": "pill-medium", "Low": "pill-low" };
   return map[val] || "pill-empty";
 }
 
@@ -1537,6 +1518,14 @@ function drawMatrix(rows) {
 
     return { lever: l, valAvg, feasAvg, compositeAvgRank, hasRankData: valRankRows.length > 0 };
   });
+
+  // ── Assign distinct whole-number ranks 1–7 by sorting on compositeAvgRank ──
+  // Levers with no data get rank null; others get 1–7 with no ties
+  const withData    = leverPoints.filter(p => p.compositeAvgRank !== null)
+    .sort((a, b) => a.compositeAvgRank - b.compositeAvgRank);
+  const withoutData = leverPoints.filter(p => p.compositeAvgRank === null);
+  withData.forEach((p, i) => { p.displayRank = i + 1; });
+  withoutData.forEach(p => { p.displayRank = null; });
 
   // ── Background quadrants ──
   const mid = PAD + INNER / 2;
@@ -1656,18 +1645,22 @@ function drawMatrix(rows) {
     ctx.beginPath(); ctx.arc(cx, cy, DOT_R, 0, Math.PI*2);
     ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
 
-    // Number inside dot — composite avg rank if available, else lever ID
+    // Number inside dot — whole-number display rank if available, else lever ID
     ctx.fillStyle = "#fff";
     ctx.font = "bold 12px DM Sans, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    const dotLabel = pt.compositeAvgRank !== null
-      ? pt.compositeAvgRank.toFixed(1)
+    const dotLabel = pt.displayRank !== null && pt.displayRank !== undefined
+      ? String(pt.displayRank)
       : String(pt.lever.id);
     ctx.fillText(dotLabel, cx, cy);
   });
 
   // ── Draw name labels as callout chips outside dots ──
   const placedChips = [];
+  // Pre-populate placedChips with dot positions so labels never land on a dot
+  dotPositions.forEach(({ cx, cy, noData }) => {
+    if (!noData) placedChips.push({ lx: cx - DOT_R - 2, ly: cy - DOT_R - 2, chipW: (DOT_R + 2) * 2, chipH: (DOT_R + 2) * 2 });
+  });
 
   dotPositions.forEach(({ cx, cy, color, pt, noData }) => {
     if (noData) return;
@@ -1682,14 +1675,14 @@ function drawMatrix(rows) {
 
     // 8 candidate positions around the dot
     const candidates = [
-      { lx: cx - chipW / 2,          ly: cy - DOT_R - chipH - GAP },      // above
-      { lx: cx - chipW / 2,          ly: cy + DOT_R + GAP },               // below
-      { lx: cx + DOT_R + GAP,        ly: cy - chipH / 2 },                 // right
-      { lx: cx - chipW - DOT_R - GAP,ly: cy - chipH / 2 },                 // left
-      { lx: cx + DOT_R + GAP,        ly: cy - DOT_R - chipH - GAP },       // top-right
-      { lx: cx - chipW - DOT_R - GAP,ly: cy - DOT_R - chipH - GAP },       // top-left
-      { lx: cx + DOT_R + GAP,        ly: cy + DOT_R + GAP },               // bottom-right
-      { lx: cx - chipW - DOT_R - GAP,ly: cy + DOT_R + GAP },               // bottom-left
+      { lx: cx - chipW / 2,          ly: cy - DOT_R - chipH - GAP },
+      { lx: cx - chipW / 2,          ly: cy + DOT_R + GAP },
+      { lx: cx + DOT_R + GAP,        ly: cy - chipH / 2 },
+      { lx: cx - chipW - DOT_R - GAP,ly: cy - chipH / 2 },
+      { lx: cx + DOT_R + GAP,        ly: cy - DOT_R - chipH - GAP },
+      { lx: cx - chipW - DOT_R - GAP,ly: cy - DOT_R - chipH - GAP },
+      { lx: cx + DOT_R + GAP,        ly: cy + DOT_R + GAP },
+      { lx: cx - chipW - DOT_R - GAP,ly: cy + DOT_R + GAP },
     ];
 
     function overlaps(a) {
@@ -1713,7 +1706,7 @@ function drawMatrix(rows) {
     chosen.ly = Math.max(PAD + 2, chosen.ly);
     placedChips.push({ lx: chosen.lx, ly: chosen.ly, chipW, chipH });
 
-    // Dashed connector line from dot to chip
+    // Dashed connector line from dot edge to chip
     ctx.save();
     ctx.strokeStyle = color + "55";
     ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
@@ -1743,20 +1736,22 @@ function drawMatrix(rows) {
     ctx.fill(); ctx.stroke();
     ctx.restore();
 
-    // Label text
+    // Label text only — no score annotation
     ctx.fillStyle = "#1e293b";
     ctx.font = "600 10.5px DM Sans, sans-serif";
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
     ctx.fillText(name, chosen.lx + 7, chosen.ly + chipH / 2);
-
-    // Score annotation
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "500 9px DM Sans, sans-serif";
-    ctx.textAlign = "center"; ctx.textBaseline = "top";
-    ctx.fillText(`V: ${pt.valAvg.toFixed(1)} · F: ${pt.feasAvg.toFixed(1)}`, chosen.lx + chipW / 2, chosen.ly + chipH + 3);
   });
 
   ctx.textBaseline = "alphabetic";
+}
+
+async function refreshMatrix() {
+  const btn = document.getElementById("btn-refresh-matrix");
+  if (btn) { btn.textContent = "⏳ Loading..."; btn.disabled = true; }
+  const rows = await sbReq("GET", TABLE + "?select=user_name,user_role,lever_id,col_key,value", null);
+  if (rows) { window._lastDashRows = rows; drawMatrix(rows); }
+  if (btn) { btn.textContent = "🔄 Refresh"; btn.disabled = false; }
 }
 
 // ── CONFETTI ──────────────────────────────────────────────────────────────────
