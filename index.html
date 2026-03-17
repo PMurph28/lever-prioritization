@@ -618,7 +618,166 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Group tab toggle ── */
+  /* ── Rank list drag-and-drop ── */
+  .rank-list-wrap {
+    background: var(--white); border-radius: 16px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  .rank-list-header {
+    display: grid;
+    grid-template-columns: 90px 1fr 160px 160px 160px;
+    gap: 0; padding: 10px 8px;
+    background: #FAFBFC; border-bottom: 1.5px solid var(--border);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-soft);
+  }
+  .rank-list-header.feas-header {
+    grid-template-columns: 90px 1fr 160px 110px 100px 130px;
+  }
+  .rank-col-rank    { text-align: center; }
+  .rank-col-lever   { text-align: left; padding-left: 8px; }
+  .rank-col-summary { text-align: center; }
+  .rank-col-bd      { text-align: center; }
+
+  .rank-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+
+  .rank-item {
+    display: grid;
+    grid-template-columns: 90px 1fr 160px 160px 160px;
+    align-items: center; gap: 0;
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 10px 8px;
+    cursor: grab; user-select: none;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .rank-item.feas-item {
+    grid-template-columns: 90px 1fr 160px 110px 100px 130px;
+  }
+
+  /* Rank column cell — subtle highlight background */
+  .rank-item > div:first-child {
+    background: rgba(0,0,0,0.02);
+    border-right: 1.5px solid var(--border);
+    margin: -10px 0; padding: 10px 0;
+    border-radius: 10px 0 0 10px;
+  }
+  .rank-item.val-item  > div:first-child { background: #FFF5F5; border-right-color: #FFD5D5; }
+  .rank-item.feas-item > div:first-child { background: #EFF7FF; border-right-color: #BFDBFE; }
+
+  @keyframes rankPulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .rank-badge.just-updated { animation: rankPulse 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+
+  /* Vertical priority arrow sidebar */
+  .rank-list-outer {
+    display: flex; gap: 12px; align-items: stretch;
+  }
+  .priority-axis {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: space-between; padding: 8px 0;
+    width: 28px; flex-shrink: 0;
+  }
+  .priority-axis-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-soft);
+    writing-mode: vertical-rl; transform: rotate(180deg);
+  }
+  .priority-axis-label.top { color: #059669; }
+  .priority-axis-label.bot { color: #94a3b8; }
+  .priority-axis-line {
+    flex: 1; width: 2px; border-radius: 2px; margin: 6px 0;
+    background: linear-gradient(to bottom, #059669, #FBBF24, #94a3b8);
+  }
+  .priority-axis-arrow-top { font-size: 12px; color: #059669; line-height: 1; }
+  .priority-axis-arrow-bot { font-size: 12px; color: #94a3b8; line-height: 1; }
+
+  /* Drag callout */
+  .drag-callout {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: #FFFBEB; border: 1.5px solid #FDE68A;
+    border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .drag-callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .drag-callout-text { font-size: 13px; color: #78350F; line-height: 1.5; }
+  .drag-callout-text strong { font-weight: 800; }
+  .rank-item:active { cursor: grabbing; }
+  .rank-item.dragging {
+    opacity: 0.4; border-color: var(--red);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transform: scale(1.01);
+  }
+  .rank-item.drag-over {
+    border-color: var(--red); border-style: dashed;
+    background: #FFF5F5;
+  }
+  .rank-item.val-item  { border-left: 3px solid var(--red); }
+  .rank-item.feas-item { border-left: 3px solid #0369a1; }
+
+  .rank-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 13px; font-weight: 800; color: #fff;
+    background: var(--red); margin: 0 auto;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .rank-item.feas-item .rank-badge { background: #0369a1; }
+  .rank-badge.top3 { background: #059669; }
+
+  .rank-drag-handle {
+    font-size: 14px; color: #CBD5E1; margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .rank-lever-info { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+  .rank-lever-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .rank-lever-origin { font-size: 10px; color: var(--text-soft); font-style: italic; }
+
+  .rank-summary-tag {
+    text-align: center; padding: 0 8px;
+  }
+  .rank-tag {
+    display: inline-block; padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .rank-tag.high, .rank-tag.immediate { background: #D1FAE5; color: #065F46; }
+  .rank-tag.medium, .rank-tag.medterm  { background: #FEF3C7; color: #78350F; }
+  .rank-tag.low, .rank-tag.longterm    { background: #FEE2E2; color: #7F1D1D; }
+
+  .rank-bd-cell {
+    text-align: center; padding: 0 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .rank-bd-tags { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .rank-bd-tag { display: inline-block; padding: 3px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 600;
+    background: #F1F5F9; color: #64748b;
+    border: 1.5px dashed #CBD5E1; }
+  /* Dep/risk colour coding */
+  .High-dep   { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; border-style: solid; }
+  .Moderate-dep { background: #FEF3C7; color: #78350F; border-color: #FCD34D; border-style: solid; }
+  .Low-dep    { background: #D1FAE5; color: #065F46; border-color: #6EE7B7; border-style: solid; }
+  .time-tag   { background: #EFF6FF; color: #1E3A8A; border-color: #BFDBFE; border-style: solid; }
+
+  /* Rank position color gradient */
+  .rank-item[data-rank="1"] .rank-badge,
+  .rank-item[data-rank="2"] .rank-badge,
+  .rank-item[data-rank="3"] .rank-badge { background: #059669; }
+  .rank-item[data-rank="4"] .rank-badge,
+  .rank-item[data-rank="5"] .rank-badge { background: #D97706; }
+  .rank-item[data-rank="6"] .rank-badge,
+  .rank-item[data-rank="7"] .rank-badge { background: #94a3b8; }
+  .rank-item.feas-item[data-rank="1"] .rank-badge,
+  .rank-item.feas-item[data-rank="2"] .rank-badge,
+  .rank-item.feas-item[data-rank="3"] .rank-badge { background: #059669; }
+  .rank-item.feas-item[data-rank="4"] .rank-badge,
+  .rank-item.feas-item[data-rank="5"] .rank-badge { background: #D97706; }
+  .rank-item.feas-item[data-rank="6"] .rank-badge,
+  .rank-item.feas-item[data-rank="7"] .rank-badge { background: #94a3b8; }
   .group-tabs {
     display: flex; gap: 0; margin-bottom: 20px;
     background: var(--white); border: 1.5px solid var(--border);
@@ -702,7 +861,7 @@
   <div class="app-body">
     <div class="section-intro">
       <h1>Please rate the Value and Feasibility / Speed of implementation for these levers</h1>
-      <p>Toggle between <strong>Value</strong> and <strong>Feasibility / Speed</strong> to rate each dimension separately.</p>
+      <p>Use the tabs below to rank all 7 levers by <strong>Value</strong> and then by <strong>Feasibility / Speed</strong> — drag each lever to the position that reflects your view.</p>
       <div class="group-tabs" style="margin-top:16px">
         <button class="group-tab active val" id="gtab-val" onclick="switchGroup('val')">💰 Value</button>
         <button class="group-tab feas" id="gtab-feas" onclick="switchGroup('feas')">⚡ Feasibility / Speed</button>
@@ -710,53 +869,68 @@
     </div>
 
     <div class="lever-table-wrap">
-      <table class="lever-table">
-        <thead>
-          <tr class="thead-group">
-            <th class="col-lever-header">Initiative</th>
-            <th class="col-group-header value-group" colspan="2">
-              <div class="col-group-label value">Value</div>
-              <div class="col-group-sub">Impact delivered to the business</div>
-            </th>
-            <th class="col-group-header feasibility-group" colspan="2" style="border-left:2px solid var(--border)">
-              <div class="col-group-label feasibility">Feasibility / Speed</div>
-              <div class="col-group-sub">How quickly value can be realised</div>
-            </th>
-            <th style="width:50px; border-bottom: 1.5px solid var(--border);"></th>
-          </tr>
-          <tr class="thead-sub">
-            <th class="lever-sub"></th>
-            <th class="val-sub">
-              <div class="th-tooltip-wrap">Summary
-                <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">Overall value rating — Very High Value, High Value, Medium Value, or Low Value</div>
-              </div>
-            </th>
-            <th class="val-sub">
-              <div class="th-tooltip-wrap">Breadth &amp; Depth
-                <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">Breadth: how many teams are affected. Depth: how many processes change. Use ▲/▼ to indicate if you think the impact is larger or smaller than shown.</div>
-              </div>
-            </th>
-            <th class="feas-sub group-border">
-              <div class="th-tooltip-wrap">Time to Value
-                <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">How quickly this lever delivers value — Immediate, Short-term, Medium-term, or Long-term</div>
-              </div>
-            </th>
-            <th class="feas-sub">
-              <div class="th-tooltip-wrap">Breadth &amp; Depth
-                <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">Breadth: how many teams are involved in rollout. Depth: how many processes need to change. Use ▲/▼ to indicate if you think the impact is larger or smaller than shown.</div>
-              </div>
-            </th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="levers-tbody">
-          <!-- Rows injected by JS -->
-        </tbody>
-      </table>
+
+      <!-- DRAG CALLOUT -->
+      <div class="drag-callout" id="drag-callout-val">
+        <div class="drag-callout-icon">☝️</div>
+        <div class="drag-callout-text">
+          <strong>Drag to reorder.</strong> Place the levers in the order you believe will deliver the greatest <strong>business value</strong> for the J&J MedTech CS transformation — highest priority at the top, lowest at the bottom.
+        </div>
+      </div>
+      <div class="drag-callout" id="drag-callout-feas" style="display:none; border-color:#BAE6FD; background:#F0F9FF;">
+        <div class="drag-callout-icon" style="filter:hue-rotate(180deg)">☝️</div>
+        <div class="drag-callout-text" style="color:#0c4a6e">
+          <strong>Drag to reorder.</strong> Place the levers in the order you believe are most <strong>feasible and fastest to implement</strong> — those you'd execute first at the top, hardest to deliver at the bottom.
+        </div>
+      </div>
+
+      <!-- VALUE RANK LIST -->
+      <div id="rank-val-wrap">
+        <div class="rank-list-outer">
+          <div class="priority-axis">
+            <div class="priority-axis-label top">Highest Priority</div>
+            <div class="priority-axis-arrow-top">▲</div>
+            <div class="priority-axis-line"></div>
+            <div class="priority-axis-arrow-bot">▼</div>
+            <div class="priority-axis-label bot">Lowest Priority</div>
+          </div>
+          <div class="rank-list-wrap" style="flex:1">
+            <div class="rank-list-header">
+              <div class="rank-col-rank">Prioritization Rank</div>
+              <div class="rank-col-lever">Initiative</div>
+              <div class="rank-col-summary">Value Summary</div>
+              <div class="rank-col-bd">Breadth of Impact</div>
+              <div class="rank-col-bd">Depth of Impact</div>
+            </div>
+            <div class="rank-list" id="rank-list-val"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEASIBILITY RANK LIST -->
+      <div id="rank-feas-wrap" style="display:none">
+        <div class="rank-list-outer">
+          <div class="priority-axis">
+            <div class="priority-axis-label top">Highest Priority</div>
+            <div class="priority-axis-arrow-top">▲</div>
+            <div class="priority-axis-line"></div>
+            <div class="priority-axis-arrow-bot">▼</div>
+            <div class="priority-axis-label bot">Lowest Priority</div>
+          </div>
+          <div class="rank-list-wrap" style="flex:1">
+            <div class="rank-list-header feas-header">
+              <div class="rank-col-rank">Prioritization Rank</div>
+              <div class="rank-col-lever">Initiative</div>
+              <div class="rank-col-summary">Feasibility Summary</div>
+              <div class="rank-col-bd">Dependencies</div>
+              <div class="rank-col-bd">Risks</div>
+              <div class="rank-col-bd">Time to Impact</div>
+            </div>
+            <div class="rank-list" id="rank-list-feas"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -808,14 +982,16 @@
             <tr>
               <th style="width:200px">Lever</th>
               <th class="val-th">Value Summary</th>
-              <th class="val-th">Value Breadth &amp; Depth</th>
-              <th class="feas-th border-l">Time to Value</th>
-              <th class="feas-th">Feas. Breadth &amp; Depth</th>
+              <th class="val-th">Val. Breadth &amp; Depth</th>
+              <th class="feas-th border-l">Feasibility Summary</th>
+              <th class="feas-th">Dependencies</th>
+              <th class="feas-th">Risks</th>
+              <th class="feas-th">Time to Impact</th>
               <th style="width:80px">Responses</th>
             </tr>
           </thead>
           <tbody id="results-tbody">
-            <tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8">Loading results...</td></tr>
+            <tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8">Loading results...</td></tr>
           </tbody>
         </table>
       </div>
@@ -830,7 +1006,7 @@
     <div class="dash-tab-panel" id="dash-panel-matrix">
       <div class="matrix-wrap">
         <div class="matrix-title">Value vs. Time to Value</div>
-        <div class="matrix-sub">Average rating per lever across all respondents · Low Value / Long-term = 1 · Very High Value / Immediate = 4</div>
+        <div class="matrix-sub">Composite score per lever across all respondents · 60% pre-assigned label score + 40% crowd rank (rank 1 = highest priority)</div>
         <div class="matrix-canvas-wrap">
           <canvas id="matrix-canvas" width="680" height="680"></canvas>
         </div>
@@ -863,25 +1039,23 @@ const TABLE = "lever_votes_v2";
 
 // ── LEVERS ──────────────────────────────────────────────────────────────────
 const LEVERS = [
-  { id: 1, name: "AI Agent handling",               emoji: "🤖", desc: "Deploy AI agent to resolve routine voice & email inquiries autonomously",                                       origin: "Mistral + Kearney",   val_breadth: "Org wide",      val_depth: "Most processes",  feas_breadth: "Most teams",   feas_depth: "Most processes"  },
-  { id: 2, name: "Proactive comms",                 emoji: "📣", desc: "Reduce inbound demand via proactive, customized customer notifications",                                         origin: "Mistral",             val_breadth: "Org wide",      val_depth: "Few processes",   feas_breadth: "Most teams",   feas_depth: "Few processes"   },
-  { id: 3, name: "OTI fixes",                       emoji: "🔧", desc: "Reduce order intake-related errors using AI-enhanced OCR & validation rules",                                    origin: "Mistral",             val_breadth: "Less than half", val_depth: "Few processes",  feas_breadth: "Less than half", feas_depth: "Few processes" },
-  { id: 4, name: "Skillset of the future",          emoji: "🎓", desc: "Modernize competency model (incl. AI fluency); deploy in-context AI nudges for on-the-job learning",             origin: "Mistral + FoW Lab",   val_breadth: "Org wide",      val_depth: "All processes",   feas_breadth: "Org wide",     feas_depth: "Most processes"  },
-  { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", desc: "Consolidate systems into single workspace with embedded AI guidance",                                            origin: "Mistral + Kearney",   val_breadth: "Org wide",      val_depth: "All processes",   feas_breadth: "Org wide",     feas_depth: "All processes"   },
-  { id: 6, name: "Centralized KMS",                 emoji: "📚", desc: "Consolidate agent knowledge (incl. SOPs, FAQs) into single AI-searchable governed repository",                   origin: "Mistral + Kearney",   val_breadth: "Org wide",      val_depth: "Most processes",  feas_breadth: "Most teams",   feas_depth: "Most processes"  },
-  { id: 7, name: "Dynamic routing",                 emoji: "⚡", desc: "Intelligently route contacts based on skill-based matching; dynamically manage load",                             origin: "Mistral + Butterfly", val_breadth: "Most teams",    val_depth: "Most processes",  feas_breadth: "Most teams",   feas_depth: "Most processes"  },
+  { id: 1, name: "AI Agent handling",               emoji: "🤖", origin: "Mistral + Kearney",   val_breadth: "Org wide",       val_depth: "Most processes", feas_summary_static: "Low",    feas_dependencies: "High",     feas_risks: "Moderate", feas_time: "Long-term"   },
+  { id: 2, name: "Proactive comms",                 emoji: "📣", origin: "Mistral",             val_breadth: "Org wide",       val_depth: "Few processes",  feas_summary_static: "Medium", feas_dependencies: "Moderate", feas_risks: "High",     feas_time: "Medium-term" },
+  { id: 3, name: "OTI fixes",                       emoji: "🔧", origin: "Mistral",             val_breadth: "Less than half", val_depth: "Few processes",  feas_summary_static: "High",   feas_dependencies: "High",     feas_risks: "Low",      feas_time: "Immediate"   },
+  { id: 4, name: "Skillset of the future",          emoji: "🎓", origin: "Mistral + FoW Lab",   val_breadth: "Org wide",       val_depth: "All processes",  feas_summary_static: "High",   feas_dependencies: "Low",      feas_risks: "Low",      feas_time: "Immediate"   },
+  { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", origin: "Mistral + Kearney",   val_breadth: "Org wide",       val_depth: "All processes",  feas_summary_static: "Low",    feas_dependencies: "High",     feas_risks: "High",     feas_time: "Long-term"   },
+  { id: 6, name: "Centralized KMS",                 emoji: "📚", origin: "Mistral + Kearney",   val_breadth: "Org wide",       val_depth: "Most processes", feas_summary_static: "High",   feas_dependencies: "Moderate", feas_risks: "Low",      feas_time: "Medium-term" },
+  { id: 7, name: "Dynamic routing",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most teams",     val_depth: "Most processes", feas_summary_static: "Medium", feas_dependencies: "High",     feas_risks: "Moderate", feas_time: "Medium-term" },
 ];
 
-const VAL_SUMMARY_OPTS  = ["Very High Value", "High Value", "Medium Value", "Low Value"];
-const FEAS_SUMMARY_OPTS = ["Immediate", "Short-term", "Medium-term", "Long-term"];
-const BREADTH_OPTS = ["Org wide", "Most teams", "Less than half", "Few people"];
-const DEPTH_OPTS   = ["All processes", "Most processes", "Less than half", "Few processes"];
+const VAL_SUMMARY_OPTS  = ["High", "Medium", "Low"];
+const FEAS_SUMMARY_OPTS = ["High", "Medium", "Low"];
 
 const COLS = [
-  { key: "val_summary",      label: "Summary",        opts: VAL_SUMMARY_OPTS,  group: "val",  static: false },
-  { key: "val_breadth_depth",label: "Breadth & Depth", opts: [],               group: "val",  static: true, combined: true },
-  { key: "feas_summary",     label: "Summary",        opts: FEAS_SUMMARY_OPTS, group: "feas", static: false },
-  { key: "feas_breadth_depth",label: "Breadth & Depth",opts: [],               group: "feas", static: true, combined: true },
+  { key: "val_summary",      label: "Value Summary",      opts: VAL_SUMMARY_OPTS,  group: "val",  static: false },
+  { key: "val_breadth_depth",label: "Breadth & Depth",    opts: [],                group: "val",  static: true, combined: true },
+  { key: "feas_summary",     label: "Feasibility Summary",opts: FEAS_SUMMARY_OPTS, group: "feas", static: false },
+  { key: "feas_details",     label: "Details",            opts: [],                group: "feas", static: true, feasDetails: true },
 ];
 const INTERACTIVE_COLS = COLS.filter(c => !c.static);
 
@@ -970,80 +1144,154 @@ let activeGroup = "val";
 
 function switchGroup(group) {
   activeGroup = group;
-  const table = document.querySelector(".lever-table-wrap");
-  table.classList.toggle("hide-val",  group === "feas");
-  table.classList.toggle("hide-feas", group === "val");
-
+  document.getElementById("rank-val-wrap").style.display  = group === "val"  ? "block" : "none";
+  document.getElementById("rank-feas-wrap").style.display = group === "feas" ? "block" : "none";
+  document.getElementById("drag-callout-val").style.display  = group === "val"  ? "flex" : "none";
+  document.getElementById("drag-callout-feas").style.display = group === "feas" ? "flex" : "none";
   document.getElementById("gtab-val").classList.toggle("active", group === "val");
   document.getElementById("gtab-feas").classList.toggle("active", group === "feas");
-  document.getElementById("gtab-val").classList.toggle("val",  true);
-  document.getElementById("gtab-feas").classList.toggle("feas", true);
 }
-function buildTable() {
-  const tbody = document.getElementById("levers-tbody");
-  tbody.innerHTML = "";
-  LEVERS.forEach(lever => {
-    const tr = document.createElement("tr");
-    tr.className = "lever-row";
-    tr.id = "row-" + lever.id;
 
-    let cells = `
-      <td class="cell-lever">
-        <span class="lever-num">${lever.id}</span>
-        <div style="display:inline-block;vertical-align:middle;max-width:220px">
-          <div class="lever-name">${lever.emoji} ${lever.name}</div>
-          <div class="lever-desc">${lever.desc}</div>
-          <div class="lever-origin">${lever.origin}</div>
+// ── RANK STATE ────────────────────────────────────────────────────────────────
+// rankOrder[group] = [lever_id, lever_id, ...] in priority order (index 0 = rank 1)
+const SUMMARY_SORT = { "High": 0, "Medium": 1, "Low": 2 };
+
+const rankOrder = {
+  val:  [...LEVERS].sort((a, b) => {
+    const aLabel = ["High","High","Medium","High","High","Medium","Low"][a.id - 1];
+    const bLabel = ["High","High","Medium","High","High","Medium","Low"][b.id - 1];
+    return (SUMMARY_SORT[aLabel] ?? 1) - (SUMMARY_SORT[bLabel] ?? 1) || a.id - b.id;
+  }).map(l => l.id),
+  feas: [...LEVERS].sort((a, b) =>
+    (SUMMARY_SORT[a.feas_summary_static] ?? 1) - (SUMMARY_SORT[b.feas_summary_static] ?? 1) || a.id - b.id
+  ).map(l => l.id),
+};
+
+function getRankTagClass(val) {
+  const map = {
+    "High": "high", "Medium": "medium", "Low": "low",
+    "Immediate": "immediate", "Medium-term": "medterm", "Long-term": "longterm",
+  };
+  return map[val] || "";
+}
+
+// ── BUILD RANK LISTS ──────────────────────────────────────────────────────────
+function buildRankList(group) {
+  const listEl = document.getElementById("rank-list-" + group);
+  listEl.innerHTML = "";
+  const isVal = group === "val";
+  const order = rankOrder[group];
+
+  order.forEach((leverId, idx) => {
+    const lever = LEVERS.find(l => l.id === leverId);
+    const rank = idx + 1;
+
+    const summaryLabel = isVal
+      ? ["High","High","Medium","High","High","Medium","Low"][lever.id - 1]
+      : lever.feas_summary_static;
+
+    const tagClass = getRankTagClass(summaryLabel);
+
+    const item = document.createElement("div");
+    item.className = `rank-item ${isVal ? "val-item" : "feas-item"}`;
+    item.dataset.leverId = leverId;
+    item.dataset.rank = rank;
+    item.draggable = true;
+
+    const detailCols = isVal
+      ? `<div class="rank-bd-cell" style="text-align:center">
+           <span class="rank-bd-tag">${lever.val_breadth}</span>
+         </div>
+         <div class="rank-bd-cell" style="text-align:center">
+           <span class="rank-bd-tag">${lever.val_depth}</span>
+         </div>`
+      : `<div class="rank-bd-cell"><span class="rank-bd-tag ${getRankTagClass(lever.feas_dependencies)}-dep">${lever.feas_dependencies}</span></div>
+         <div class="rank-bd-cell"><span class="rank-bd-tag ${getRankTagClass(lever.feas_risks)}-dep">${lever.feas_risks}</span></div>
+         <div class="rank-bd-cell"><span class="rank-bd-tag time-tag">${lever.feas_time}</span></div>`;
+
+    item.innerHTML = `
+      <div style="text-align:center">
+        <span class="rank-badge">${rank}</span>
+      </div>
+      <div class="rank-lever-info">
+        <span style="font-size:20px">${lever.emoji}</span>
+        <div>
+          <div class="rank-lever-name">${lever.name}</div>
+          <div class="rank-lever-origin">${lever.origin}</div>
         </div>
-      </td>`;
+      </div>
+      <div class="rank-summary-tag">
+        <span class="rank-tag ${tagClass}">${summaryLabel}</span>
+      </div>
+      ${detailCols}`;
 
-    COLS.forEach((col, idx) => {
-      const isGroup = idx === 3;
-      const cls = col.group === "val" ? "val-cell" : "feas-cell";
-      const borderCls = isGroup ? " group-border" : "";
-
-      if (col.static && col.combined) {
-        const prefix = col.group === "val" ? "val" : "feas";
-        const breadthVal = lever[prefix + "_breadth"];
-        const depthVal   = lever[prefix + "_depth"];
-        const voteKey    = lever.id + "__" + prefix + "_breadth_depth__impact";
-        cells += `
-          <td class="cell-static ${cls}${borderCls}">
-            <div class="combined-tags">
-              <span class="static-tag">${breadthVal}</span>
-              <span class="combined-divider">·</span>
-              <span class="static-tag">${depthVal}</span>
-            </div>
-            <div class="impact-btns">
-              <button class="impact-btn up"   id="btn-up-${voteKey}"   onclick="onImpactClick('${voteKey}', 'up', this)">▲ +</button>
-              <button class="impact-btn down" id="btn-down-${voteKey}" onclick="onImpactClick('${voteKey}', 'down', this)">▼ −</button>
-            </div>
-          </td>`;
-      } else {
-        const voteKey = lever.id + "__" + col.key;
-        const selectCls = col.group === "val" ? "val-select" : "feas-select";
-        cells += `
-          <td class="cell-dropdown ${cls}${borderCls}">
-            <div class="select-wrap">
-              <select class="lever-select ${selectCls}" id="sel-${voteKey}"
-                onchange="onSelectChange('${voteKey}', this)">
-                <option value="">Rate...</option>
-                ${col.opts.map(o => `<option value="${o}">${o}</option>`).join("")}
-              </select>
-              <span class="select-caret">▾</span>
-            </div>
-          </td>`;
-      }
+    // ── Drag events ──
+    item.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", leverId);
+      setTimeout(() => item.classList.add("dragging"), 0);
+    });
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+      document.querySelectorAll(".rank-item").forEach(i => i.classList.remove("drag-over"));
+    });
+    item.addEventListener("dragover", e => {
+      e.preventDefault();
+      document.querySelectorAll(".rank-item").forEach(i => i.classList.remove("drag-over"));
+      item.classList.add("drag-over");
+    });
+    item.addEventListener("drop", e => {
+      e.preventDefault();
+      item.classList.remove("drag-over");
+      const fromId = parseInt(e.dataTransfer.getData("text/plain"));
+      const toId = parseInt(item.dataset.leverId);
+      if (fromId === toId) return;
+      const fromIdx = rankOrder[group].indexOf(fromId);
+      const toIdx   = rankOrder[group].indexOf(toId);
+      rankOrder[group].splice(fromIdx, 1);
+      rankOrder[group].splice(toIdx, 0, fromId);
+      buildRankList(group);
+      // Pulse all badges briefly to show update
+      setTimeout(() => {
+        document.querySelectorAll(`#rank-list-${group} .rank-badge`).forEach(b => {
+          b.classList.remove("just-updated");
+          void b.offsetWidth;
+          b.classList.add("just-updated");
+          setTimeout(() => b.classList.remove("just-updated"), 400);
+        });
+      }, 20);
+      saveRankOrder(group);
+      updateProgress();
     });
 
-    cells += `<td class="cell-status">
-      <span class="status-dot" id="dot-${lever.id}"></span>
-      <span class="status-counter" id="counter-${lever.id}">0/${INTERACTIVE_COLS.length}</span>
-    </td>`;
-    tr.innerHTML = cells;
-    tbody.appendChild(tr);
+    listEl.appendChild(item);
   });
+}
+
+function buildTable() {
+  buildRankList("val");
+  buildRankList("feas");
   switchGroup(activeGroup);
+}
+
+// ── SAVE RANK ORDER ───────────────────────────────────────────────────────────
+function saveRankOrder(group) {
+  const colKey = group === "val" ? "rank_val" : "rank_feas";
+  const order = rankOrder[group];
+  // Save each lever's rank as a separate row: lever_id, col_key=rank_val, value=rank_number
+  const rows = order.map((leverId, idx) => ({
+    user_name: currentUser,
+    user_role: currentRole || "Unspecified",
+    lever_id: leverId,
+    col_key: colKey,
+    value: String(idx + 1),
+    updated_at: new Date().toISOString()
+  }));
+  showToast("💾", "Saving...", false);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const res = await sbReq("POST", TABLE, rows);
+    showToast(res !== null ? "✓" : "⚠", res !== null ? "Rank saved" : "Offline — retry on submit");
+  }, 1000);
 }
 
 // ── LOAD MY VOTES ─────────────────────────────────────────────────────────────
@@ -1051,160 +1299,31 @@ async function loadMyVotes() {
   const rows = await sbReq("GET",
     TABLE + "?user_name=eq." + encodeURIComponent(currentUser) + "&select=lever_id,col_key,value", null);
   if (!rows) return;
-  rows.forEach(r => {
-    const voteKey = r.lever_id + "__" + r.col_key; // e.g. "1__val_summary" or "1__val_breadth__impact"
-    votes[voteKey] = r.value;
-    const sel = document.getElementById("sel-" + voteKey);
-    if (sel) {
-      sel.value = r.value;
-      applySelectStyle(sel, r.value);
+
+  // Restore rank orders
+  ["val","feas"].forEach(group => {
+    const colKey = group === "val" ? "rank_val" : "rank_feas";
+    const rankRows = rows.filter(r => r.col_key === colKey);
+    if (rankRows.length === 7) {
+      const sorted = rankRows.sort((a,b) => parseInt(a.value) - parseInt(b.value));
+      rankOrder[group] = sorted.map(r => r.lever_id);
+      buildRankList(group);
     }
   });
-  restoreImpactButtons();
-  updateProgress(true);
-  sortTableByValue();
-}
 
-// ── IMPACT BUTTONS ────────────────────────────────────────────────────────────
-function onImpactClick(voteKey, direction, btn) {
-  const upBtn   = document.getElementById("btn-up-"   + voteKey);
-  const downBtn = document.getElementById("btn-down-" + voteKey);
-  const alreadyActive = btn.classList.contains("active");
-
-  // Deactivate both first
-  upBtn.classList.remove("active");
-  downBtn.classList.remove("active");
-
-  if (!alreadyActive) {
-    btn.classList.add("active");
-    votes[voteKey] = direction;
-    scheduleSave(voteKey, direction);
-  } else {
-    // Clicking active button toggles it off
-    delete votes[voteKey];
-  }
-}
-
-function restoreImpactButtons() {
-  Object.entries(votes).forEach(([key, val]) => {
-    if (!key.includes("__impact")) return;
-    if (val === "up" || val === "down") {
-      const btn = document.getElementById("btn-" + val + "-" + key);
-      if (btn) btn.classList.add("active");
-    }
-  });
-}
-function onSelectChange(voteKey, sel) {
-  const val = sel.value;
-  votes[voteKey] = val;
-  applySelectStyle(sel, val);
   updateProgress();
-  scheduleSave(voteKey, val);
-  // Re-sort whenever a value summary changes
-  if (voteKey.includes("__val_summary")) sortTableByValue();
-}
-
-// ── AUTO SORT ─────────────────────────────────────────────────────────────────
-const VAL_SCORE = { "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1 };
-
-function sortTableByValue() {
-  const tbody = document.getElementById("levers-tbody");
-  const rows = Array.from(tbody.querySelectorAll("tr.lever-row"));
-
-  rows.sort((a, b) => {
-    const aId = parseInt(a.id.replace("row-", ""));
-    const bId = parseInt(b.id.replace("row-", ""));
-    const aScore = VAL_SCORE[votes[aId + "__val_summary"]] || 0;
-    const bScore = VAL_SCORE[votes[bId + "__val_summary"]] || 0;
-    // Sort descending; ties keep original lever ID order
-    return bScore !== aScore ? bScore - aScore : aId - bId;
-  });
-
-  // Fade rows out, re-append in new order, fade back in
-  rows.forEach(r => { r.style.transition = "opacity 0.2s"; r.style.opacity = "0.3"; });
-  setTimeout(() => {
-    rows.forEach(r => tbody.appendChild(r));
-    rows.forEach(r => { r.style.opacity = "1"; });
-  }, 200);
-}
-
-function applySelectStyle(sel, val) {
-  sel.setAttribute("data-val", val || "");
-  sel.classList.toggle("has-value", !!val);
-}
-
-function scheduleSave(voteKey, val) {
-  clearTimeout(saveTimer);
-  showToast("💾", "Saving...", false);
-  saveTimer = setTimeout(() => saveVote(voteKey, val), 1000);
-}
-
-async function saveVote(voteKey, val) {
-  // voteKey is either "1__val_summary" or "1__val_breadth__impact"
-  const parts = voteKey.split("__");
-  const leverId = parseInt(parts[0]);
-  const colKey = parts.slice(1).join("__"); // e.g. "val_summary" or "val_breadth__impact"
-  if (!val) return;
-  const row = {
-    user_name: currentUser,
-    user_role: currentRole || "Unspecified",
-    lever_id: leverId,
-    col_key: colKey,
-    value: val,
-    updated_at: new Date().toISOString()
-  };
-  const res = await sbReq("POST", TABLE, [row]);
-  showToast(res !== null ? "✓" : "⚠", res !== null ? "Autosaved" : "Offline — will retry on submit");
-}
-
-// ── SUBMIT ALL ────────────────────────────────────────────────────────────────
-async function submitAll() {
-  const filled = Object.entries(votes).filter(([k,v]) => v);
-  if (filled.length === 0) { showToast("!", "Nothing to submit yet"); return; }
-  const rows = filled.map(([key, val]) => {
-    const parts = key.split("__");
-    const leverId = parseInt(parts[0]);
-    const colKey = parts.slice(1).join("__");
-    return { user_name: currentUser, user_role: currentRole || "Unspecified", lever_id: leverId, col_key: colKey, value: val, updated_at: new Date().toISOString() };
-  });
-  const res = await sbReq("POST", TABLE, rows);
-  if (res !== null) {
-    showToast("🎉", "All responses submitted!");
-    launchConfetti();
-  } else {
-    showToast("⚠", "Submit failed — check connection");
-  }
 }
 
 // ── PROGRESS ──────────────────────────────────────────────────────────────────
 function updateProgress(scrollToFirst = false) {
-  const total = LEVERS.length * INTERACTIVE_COLS.length;
-  const filled = Object.values(votes).filter(v => v).length;
-  const pct = Math.round((filled / total) * 100);
+  // Progress = whether both rank lists have been touched (i.e. differ from default)
+  const valRanked  = JSON.stringify(rankOrder.val)  !== JSON.stringify(LEVERS.map(l => l.id));
+  const feasRanked = JSON.stringify(rankOrder.feas) !== JSON.stringify(LEVERS.map(l => l.id));
+  const count = (valRanked ? 1 : 0) + (feasRanked ? 1 : 0);
+  const pct = count / 2 * 100;
   document.getElementById("progress-fill").style.width = pct + "%";
-  document.getElementById("btn-submit-all").textContent = `Submit All (${filled}/${total}) ✓`;
-
-  let firstUnansweredRow = null;
-  LEVERS.forEach(lever => {
-    const leverFilled = INTERACTIVE_COLS.filter(col => votes[lever.id + "__" + col.key]).length;
-    const allDone = leverFilled === INTERACTIVE_COLS.length;
-    const dot = document.getElementById("dot-" + lever.id);
-    const counter = document.getElementById("counter-" + lever.id);
-    const row = document.getElementById("row-" + lever.id);
-    if (dot) dot.classList.toggle("done", allDone);
-    if (counter) {
-      counter.textContent = `${leverFilled}/${INTERACTIVE_COLS.length}`;
-      counter.classList.toggle("done", allDone);
-    }
-    if (row) row.classList.toggle("completed", allDone);
-    if (!allDone && !firstUnansweredRow) firstUnansweredRow = row;
-  });
-
-  if (scrollToFirst && firstUnansweredRow) {
-    setTimeout(() => {
-      firstUnansweredRow.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 400);
-  }
+  document.getElementById("btn-submit-all").textContent =
+    `Submit Rankings (${count}/2) ✓`;
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -1252,24 +1371,25 @@ async function loadDashboard() {
   document.getElementById("stat-respondents").textContent = users.length;
   document.getElementById("stat-responses").textContent = rows.length;
 
-  // Avg completion
-  const totalPossible = LEVERS.length * COLS.length;
+  // Avg completion — based on 2 rank submissions per user (rank_val + rank_feas)
+  // A user is "complete" if they have submitted at least 1 rank_val and 1 rank_feas row
+  const totalPossible = 2; // rank_val + rank_feas
   const avgCompletion = users.length === 0 ? 0 :
     Math.round(users.reduce((s, u) => {
-      return s + rows.filter(r => r.user_name === u && r.value).length;
+      const hasVal  = rows.some(r => r.user_name === u && r.col_key === "rank_val");
+      const hasFeas = rows.some(r => r.user_name === u && r.col_key === "rank_feas");
+      return s + (hasVal ? 1 : 0) + (hasFeas ? 1 : 0);
     }, 0) / users.length / totalPossible * 100);
   document.getElementById("stat-completion").textContent = avgCompletion + "%";
 
-  // Top lever by value_summary consensus
-  const summaryScore = {
-    "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1,
-    "Immediate": 4, "Short-term": 3, "Medium-term": 2, "Long-term": 1
-  };
+  // Top lever by lowest average rank_val (rank 1 = highest priority)
   const leverScores = LEVERS.map(l => {
-    const valRows = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary" && r.value);
-    const score = valRows.reduce((s, r) => s + (summaryScore[r.value] || 0), 0) / (valRows.length || 1);
-    return { name: l.name, score };
-  }).sort((a,b) => b.score - a.score);
+    const valRankRows = rows.filter(r => r.lever_id === l.id && r.col_key === "rank_val" && r.value);
+    const avgRank = valRankRows.length
+      ? valRankRows.reduce((s, r) => s + parseInt(r.value), 0) / valRankRows.length
+      : 999;
+    return { name: l.name, avgRank };
+  }).sort((a, b) => a.avgRank - b.avgRank);
   document.getElementById("stat-top").textContent = leverScores[0]?.name || "—";
 
   // Results table — mode per cell
@@ -1281,14 +1401,19 @@ async function loadDashboard() {
     COLS.forEach((col, idx) => {
       const borderStyle = idx === 3 ? ' style="border-left:1.5px solid var(--border)"' : '';
       if (col.static && col.combined) {
-        const prefix = col.group === "val" ? "val" : "feas";
-        const bVal = lever[prefix + "_breadth"];
-        const dVal = lever[prefix + "_depth"];
+        const bVal = lever.val_breadth;
+        const dVal = lever.val_depth;
         cells += `<td${borderStyle}>
           <span class="dash-pill pill-empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">${bVal}</span>
           <span style="color:#CBD5E1;margin:0 2px">·</span>
           <span class="dash-pill pill-empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">${dVal}</span>
         </td>`;
+      } else if (col.static && col.feasDetails) {
+        const depClass  = { "High":"pill-low","Moderate":"pill-medium","Low":"pill-high" }[lever.feas_dependencies] || "pill-empty";
+        const riskClass = { "High":"pill-low","Moderate":"pill-medium","Low":"pill-high" }[lever.feas_risks] || "pill-empty";
+        cells += `<td${borderStyle}><span class="dash-pill ${depClass}">${lever.feas_dependencies}</span></td>`;
+        cells += `<td><span class="dash-pill ${riskClass}">${lever.feas_risks}</span></td>`;
+        cells += `<td><span class="dash-pill" style="background:#EFF6FF;color:#1E3A8A">${lever.feas_time}</span></td>`;
       } else {
         const cellRows = rows.filter(r => r.lever_id === lever.id && r.col_key === col.key && r.value);
         const mode = getMode(cellRows.map(r => r.value));
@@ -1311,9 +1436,10 @@ async function loadDashboard() {
     grid.innerHTML = '<div style="color:#94a3b8;font-size:13px">No responses yet</div>';
   } else {
     users.forEach(u => {
-      const userRows = rows.filter(r => r.user_name === u && r.value);
       const role = rows.find(r => r.user_name === u)?.user_role || "";
-      const pct = Math.round(userRows.length / totalPossible * 100);
+      const hasVal  = rows.some(r => r.user_name === u && r.col_key === "rank_val");
+      const hasFeas = rows.some(r => r.user_name === u && r.col_key === "rank_feas");
+      const pct = ((hasVal ? 1 : 0) + (hasFeas ? 1 : 0)) / 2 * 100;
       const card = document.createElement("div");
       card.className = "respondent-card";
       card.innerHTML = `
@@ -1338,13 +1464,10 @@ function getMode(arr) {
 function getPillClass(val) {
   if (!val) return "pill-empty";
   const map = {
-    "Very High Value": "pill-veryhigh", "High Value": "pill-high",
-    "Medium Value": "pill-medium",      "Low Value": "pill-low",
-    "Immediate": "pill-veryhigh",       "Short-term": "pill-high",
-    "Medium-term": "pill-medium",       "Long-term": "pill-low",
-    "Org wide": "pill-orgwide",         "Most teams": "pill-mostteams",
-    "Less than half": "pill-lessthan",  "Few people": "pill-few",
-    "All processes": "pill-orgwide",    "Most processes": "pill-mostteams",
+    "High": "pill-high", "Medium": "pill-medium", "Low": "pill-low",
+    "Org wide": "pill-orgwide", "Most teams": "pill-mostteams",
+    "Less than half": "pill-lessthan", "Few people": "pill-few",
+    "All processes": "pill-orgwide", "Most processes": "pill-mostteams",
     "Few processes": "pill-few"
   };
   return map[val] || "pill-empty";
@@ -1368,22 +1491,51 @@ function drawMatrix(rows) {
   const INNER = W - PAD * 2;
   const PLOT  = INNER - MARGIN * 2; // usable plot area inside margin
 
-  const scoreMap = {
-    "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1,
-    "Immediate": 4, "Short-term": 3, "Medium-term": 2, "Long-term": 1
+  // Helper: map score 1–4 to canvas coordinate with margin inset
+  const toX = val => PAD + MARGIN + ((val - 1) / 2) * PLOT;
+  const toY = val => PAD + MARGIN + PLOT - ((val - 1) / 2) * PLOT;
+
+  // Compute composite scores per lever
+  // Val: 60% from static label score, 40% from avg rank (rank 1=7pts, rank 7=1pt)
+  const labelScore = {
+    "High": 3, "Medium": 2, "Low": 1,
+    "Immediate": 3, "Medium-term": 2, "Long-term": 1
+  };
+  const staticLabels = {
+    val:  ["High","High","Medium","High","High","Medium","Low"],
+    feas: LEVERS.map(l => l.feas_summary_static),
   };
 
-  // Helper: map score 1–4 to canvas coordinate with margin inset
-  const toX = val => PAD + MARGIN + ((val - 1) / 3) * PLOT;
-  const toY = val => PAD + MARGIN + PLOT - ((val - 1) / 3) * PLOT;
+  const leverPoints = LEVERS.map((l, i) => {
+    // Label score (0.6 weight), normalised 1-4
+    const valLabel  = staticLabels.val[i];
+    const feasLabel = staticLabels.feas[i];
+    const valLabelScore  = labelScore[valLabel]  || 2.5;
+    const feasLabelScore = labelScore[feasLabel] || 2.5;
 
-  // Compute avg val_summary and feas_summary per lever
-  const leverPoints = LEVERS.map(l => {
-    const valRows  = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary"  && r.value);
-    const feasRows = rows.filter(r => r.lever_id === l.id && r.col_key === "feas_summary" && r.value);
-    const valAvg  = valRows.length  ? valRows.reduce((s,r)  => s + (scoreMap[r.value] || 0), 0) / valRows.length  : null;
-    const feasAvg = feasRows.length ? feasRows.reduce((s,r) => s + (scoreMap[r.value] || 0), 0) / feasRows.length : null;
-    return { lever: l, valAvg, feasAvg };
+    // Rank score (0.4 weight): avg rank across all users, inverted (rank1=7, rank7=1), then mapped 1-4
+    const valRankRows  = rows.filter(r => r.lever_id === l.id && r.col_key === "rank_val"  && r.value);
+    const feasRankRows = rows.filter(r => r.lever_id === l.id && r.col_key === "rank_feas" && r.value);
+
+    const avgValRank  = valRankRows.length  ? valRankRows.reduce((s,r)  => s + parseInt(r.value), 0) / valRankRows.length  : null;
+    const avgFeasRank = feasRankRows.length ? feasRankRows.reduce((s,r) => s + parseInt(r.value), 0) / feasRankRows.length : null;
+
+    // Invert rank (rank1 best → score 7, rank7 worst → score 1), then scale to 1-3
+    const valRankScore  = avgValRank  !== null ? 1 + ((7 - avgValRank)  / 6) * 2 : null;
+    const feasRankScore = avgFeasRank !== null ? 1 + ((7 - avgFeasRank) / 6) * 2 : null;
+
+    // Composite: 60% label + 40% rank (fall back to label only if no rank data)
+    const valAvg  = valRankScore  !== null ? valLabelScore  * 0.6 + valRankScore  * 0.4 : valLabelScore;
+    const feasAvg = feasRankScore !== null ? feasLabelScore * 0.6 + feasRankScore * 0.4 : feasLabelScore;
+
+    // Composite avg rank: average of rank_val and rank_feas across all users
+    const allRankRows = rows.filter(r => r.lever_id === l.id &&
+      (r.col_key === "rank_val" || r.col_key === "rank_feas") && r.value);
+    const compositeAvgRank = allRankRows.length
+      ? allRankRows.reduce((s, r) => s + parseInt(r.value), 0) / allRankRows.length
+      : null;
+
+    return { lever: l, valAvg, feasAvg, compositeAvgRank, hasRankData: valRankRows.length > 0 };
   });
 
   // ── Background quadrants ──
@@ -1427,13 +1579,13 @@ function drawMatrix(rows) {
 
   // Tick labels
   ctx.font = "500 10px DM Sans, sans-serif"; ctx.fillStyle = "#94a3b8";
-  ["Low Value","Med Value","High Value","V.High"].forEach((lbl, i) => {
+  ["Low","Medium","High"].forEach((lbl, i) => {
     ctx.textAlign = "center";
-    ctx.fillText(lbl, PAD + (i / 3) * INNER, PAD + INNER + 16);
+    ctx.fillText(lbl, PAD + (i / 2) * INNER, PAD + INNER + 16);
   });
-  ["Long-term","Med-term","Short-term","Immediate"].forEach((lbl, i) => {
+  ["Long-term","Medium-term","Immediate"].forEach((lbl, i) => {
     ctx.textAlign = "right";
-    ctx.fillText(lbl, PAD - 6, PAD + INNER - (i / 3) * INNER + 4);
+    ctx.fillText(lbl, PAD - 6, PAD + INNER - (i / 2) * INNER + 4);
   });
 
   // ── Dot colors ──
@@ -1504,14 +1656,19 @@ function drawMatrix(rows) {
     ctx.beginPath(); ctx.arc(cx, cy, DOT_R, 0, Math.PI*2);
     ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
 
-    // Number inside dot
+    // Number inside dot — composite avg rank if available, else lever ID
     ctx.fillStyle = "#fff";
     ctx.font = "bold 12px DM Sans, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(pt.lever.id, cx, cy);
+    const dotLabel = pt.compositeAvgRank !== null
+      ? pt.compositeAvgRank.toFixed(1)
+      : String(pt.lever.id);
+    ctx.fillText(dotLabel, cx, cy);
   });
 
   // ── Draw name labels as callout chips outside dots ──
+  const placedChips = [];
+
   dotPositions.forEach(({ cx, cy, color, pt, noData }) => {
     if (noData) return;
 
@@ -1521,34 +1678,67 @@ function drawMatrix(rows) {
     const chipW = textW + 14;
     const chipH = 18;
     const chipR = 5;
+    const GAP = 6;
 
-    // Position label: prefer above, shift left/right to stay in bounds
-    let lx = cx - chipW / 2;
-    let ly = cy - DOT_R - chipH - 5;
+    // 8 candidate positions around the dot
+    const candidates = [
+      { lx: cx - chipW / 2,          ly: cy - DOT_R - chipH - GAP },      // above
+      { lx: cx - chipW / 2,          ly: cy + DOT_R + GAP },               // below
+      { lx: cx + DOT_R + GAP,        ly: cy - chipH / 2 },                 // right
+      { lx: cx - chipW - DOT_R - GAP,ly: cy - chipH / 2 },                 // left
+      { lx: cx + DOT_R + GAP,        ly: cy - DOT_R - chipH - GAP },       // top-right
+      { lx: cx - chipW - DOT_R - GAP,ly: cy - DOT_R - chipH - GAP },       // top-left
+      { lx: cx + DOT_R + GAP,        ly: cy + DOT_R + GAP },               // bottom-right
+      { lx: cx - chipW - DOT_R - GAP,ly: cy + DOT_R + GAP },               // bottom-left
+    ];
 
-    // Clamp horizontally
-    lx = Math.max(PAD + 2, Math.min(lx, PAD + INNER - chipW - 2));
-    // If too close to top, put below dot instead
-    if (ly < PAD + 2) ly = cy + DOT_R + 5;
+    function overlaps(a) {
+      if (a.lx < PAD + 2 || a.lx + chipW > PAD + INNER - 2) return true;
+      if (a.ly < PAD + 2 || a.ly + chipH > PAD + INNER + 24) return true;
+      for (const b of placedChips) {
+        if (a.lx < b.lx + b.chipW + 4 && a.lx + chipW + 4 > b.lx &&
+            a.ly < b.ly + b.chipH + 4 && a.ly + chipH + 4 > b.ly) return true;
+      }
+      return false;
+    }
+
+    let chosen = candidates.find(c => !overlaps(c));
+    if (!chosen) {
+      chosen = {
+        lx: Math.max(PAD + 2, Math.min(cx - chipW / 2, PAD + INNER - chipW - 2)),
+        ly: Math.max(PAD + 2, cy - DOT_R - chipH - GAP - (placedChips.length * (chipH + 5)))
+      };
+    }
+    chosen.lx = Math.max(PAD + 2, Math.min(chosen.lx, PAD + INNER - chipW - 2));
+    chosen.ly = Math.max(PAD + 2, chosen.ly);
+    placedChips.push({ lx: chosen.lx, ly: chosen.ly, chipW, chipH });
+
+    // Dashed connector line from dot to chip
+    ctx.save();
+    ctx.strokeStyle = color + "55";
+    ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(chosen.lx + chipW / 2, chosen.ly + chipH / 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
 
     // Chip background
     ctx.save();
     ctx.shadowColor = "rgba(0,0,0,0.10)";
     ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
-    ctx.fillStyle = "#fff";
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    // Rounded rect
+    ctx.fillStyle = "#fff"; ctx.strokeStyle = color; ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(lx + chipR, ly);
-    ctx.lineTo(lx + chipW - chipR, ly);
-    ctx.quadraticCurveTo(lx + chipW, ly, lx + chipW, ly + chipR);
-    ctx.lineTo(lx + chipW, ly + chipH - chipR);
-    ctx.quadraticCurveTo(lx + chipW, ly + chipH, lx + chipW - chipR, ly + chipH);
-    ctx.lineTo(lx + chipR, ly + chipH);
-    ctx.quadraticCurveTo(lx, ly + chipH, lx, ly + chipH - chipR);
-    ctx.lineTo(lx, ly + chipR);
-    ctx.quadraticCurveTo(lx, ly, lx + chipR, ly);
+    ctx.moveTo(chosen.lx + chipR, chosen.ly);
+    ctx.lineTo(chosen.lx + chipW - chipR, chosen.ly);
+    ctx.quadraticCurveTo(chosen.lx + chipW, chosen.ly, chosen.lx + chipW, chosen.ly + chipR);
+    ctx.lineTo(chosen.lx + chipW, chosen.ly + chipH - chipR);
+    ctx.quadraticCurveTo(chosen.lx + chipW, chosen.ly + chipH, chosen.lx + chipW - chipR, chosen.ly + chipH);
+    ctx.lineTo(chosen.lx + chipR, chosen.ly + chipH);
+    ctx.quadraticCurveTo(chosen.lx, chosen.ly + chipH, chosen.lx, chosen.ly + chipH - chipR);
+    ctx.lineTo(chosen.lx, chosen.ly + chipR);
+    ctx.quadraticCurveTo(chosen.lx, chosen.ly, chosen.lx + chipR, chosen.ly);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
     ctx.restore();
@@ -1557,13 +1747,13 @@ function drawMatrix(rows) {
     ctx.fillStyle = "#1e293b";
     ctx.font = "600 10.5px DM Sans, sans-serif";
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
-    ctx.fillText(name, lx + 7, ly + chipH / 2);
+    ctx.fillText(name, chosen.lx + 7, chosen.ly + chipH / 2);
 
-    // Score line below chip
+    // Score annotation
     ctx.fillStyle = "#94a3b8";
     ctx.font = "500 9px DM Sans, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "top";
-    ctx.fillText(`V: ${pt.valAvg.toFixed(1)} · T: ${pt.feasAvg.toFixed(1)}`, cx, ly + chipH + 3);
+    ctx.fillText(`V: ${pt.valAvg.toFixed(1)} · F: ${pt.feasAvg.toFixed(1)}`, chosen.lx + chipW / 2, chosen.ly + chipH + 3);
   });
 
   ctx.textBaseline = "alphabetic";
