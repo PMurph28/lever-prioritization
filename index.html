@@ -378,6 +378,13 @@
     letter-spacing: 0.1px; cursor: default;
     font-family: inherit; margin-bottom: 6px;
   }
+  .combined-tags {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px; flex-wrap: wrap; margin-bottom: 5px;
+  }
+  .combined-divider {
+    color: #CBD5E1; font-weight: 700; font-size: 13px;
+  }
   .impact-btns {
     display: flex; gap: 5px; justify-content: center; margin-top: 5px;
   }
@@ -694,7 +701,7 @@
 
   <div class="app-body">
     <div class="section-intro">
-      <h1>Rate the 7 Levers</h1>
+      <h1>Please rate the Value and Feasibility / Speed of implementation for these levers</h1>
       <p>Toggle between <strong>Value</strong> and <strong>Feasibility / Speed</strong> to rate each dimension separately.</p>
       <div class="group-tabs" style="margin-top:16px">
         <button class="group-tab active val" id="gtab-val" onclick="switchGroup('val')">💰 Value</button>
@@ -707,11 +714,11 @@
         <thead>
           <tr class="thead-group">
             <th class="col-lever-header">Initiative</th>
-            <th class="col-group-header value-group" colspan="3">
+            <th class="col-group-header value-group" colspan="2">
               <div class="col-group-label value">Value</div>
               <div class="col-group-sub">Impact delivered to the business</div>
             </th>
-            <th class="col-group-header feasibility-group" colspan="3" style="border-left:2px solid var(--border)">
+            <th class="col-group-header feasibility-group" colspan="2" style="border-left:2px solid var(--border)">
               <div class="col-group-label feasibility">Feasibility / Speed</div>
               <div class="col-group-sub">How quickly value can be realised</div>
             </th>
@@ -726,15 +733,9 @@
               </div>
             </th>
             <th class="val-sub">
-              <div class="th-tooltip-wrap">Breadth of Impact
+              <div class="th-tooltip-wrap">Breadth &amp; Depth
                 <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">How many teams or people are affected: Org wide → Few people</div>
-              </div>
-            </th>
-            <th class="val-sub">
-              <div class="th-tooltip-wrap">Depth of Impact
-                <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">How deeply processes are changed: All processes → Few processes</div>
+                <div class="th-tooltip-box">Breadth: how many teams are affected. Depth: how many processes change. Use ▲/▼ to indicate if you think the impact is larger or smaller than shown.</div>
               </div>
             </th>
             <th class="feas-sub group-border">
@@ -744,15 +745,9 @@
               </div>
             </th>
             <th class="feas-sub">
-              <div class="th-tooltip-wrap">Breadth of Impact
+              <div class="th-tooltip-wrap">Breadth &amp; Depth
                 <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">How many teams or functions are involved in the rollout</div>
-              </div>
-            </th>
-            <th class="feas-sub">
-              <div class="th-tooltip-wrap">Depth of Impact
-                <span class="th-tooltip-icon">i</span>
-                <div class="th-tooltip-box">How many processes need to change to implement this lever</div>
+                <div class="th-tooltip-box">Breadth: how many teams are involved in rollout. Depth: how many processes need to change. Use ▲/▼ to indicate if you think the impact is larger or smaller than shown.</div>
               </div>
             </th>
             <th></th>
@@ -813,16 +808,14 @@
             <tr>
               <th style="width:200px">Lever</th>
               <th class="val-th">Value Summary</th>
-              <th class="val-th">Value Breadth</th>
-              <th class="val-th">Value Depth</th>
+              <th class="val-th">Value Breadth &amp; Depth</th>
               <th class="feas-th border-l">Time to Value</th>
-              <th class="feas-th">Feas. Breadth</th>
-              <th class="feas-th">Feas. Depth</th>
+              <th class="feas-th">Feas. Breadth &amp; Depth</th>
               <th style="width:80px">Responses</th>
             </tr>
           </thead>
           <tbody id="results-tbody">
-            <tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8">Loading results...</td></tr>
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8">Loading results...</td></tr>
           </tbody>
         </table>
       </div>
@@ -885,12 +878,10 @@ const BREADTH_OPTS = ["Org wide", "Most teams", "Less than half", "Few people"];
 const DEPTH_OPTS   = ["All processes", "Most processes", "Less than half", "Few processes"];
 
 const COLS = [
-  { key: "val_summary",   label: "Summary",           opts: VAL_SUMMARY_OPTS,  group: "val",  static: false },
-  { key: "val_breadth",   label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "val",  static: true  },
-  { key: "val_depth",     label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "val",  static: true  },
-  { key: "feas_summary",  label: "Summary",            opts: FEAS_SUMMARY_OPTS, group: "feas", static: false },
-  { key: "feas_breadth",  label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "feas", static: true  },
-  { key: "feas_depth",    label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "feas", static: true  },
+  { key: "val_summary",      label: "Summary",        opts: VAL_SUMMARY_OPTS,  group: "val",  static: false },
+  { key: "val_breadth_depth",label: "Breadth & Depth", opts: [],               group: "val",  static: true, combined: true },
+  { key: "feas_summary",     label: "Summary",        opts: FEAS_SUMMARY_OPTS, group: "feas", static: false },
+  { key: "feas_breadth_depth",label: "Breadth & Depth",opts: [],               group: "feas", static: true, combined: true },
 ];
 const INTERACTIVE_COLS = COLS.filter(c => !c.static);
 
@@ -1011,14 +1002,20 @@ function buildTable() {
       const cls = col.group === "val" ? "val-cell" : "feas-cell";
       const borderCls = isGroup ? " group-border" : "";
 
-      if (col.static) {
-        const staticVal = lever[col.key];
-        const voteKey = lever.id + "__" + col.key + "__impact";
+      if (col.static && col.combined) {
+        const prefix = col.group === "val" ? "val" : "feas";
+        const breadthVal = lever[prefix + "_breadth"];
+        const depthVal   = lever[prefix + "_depth"];
+        const voteKey    = lever.id + "__" + prefix + "_breadth_depth__impact";
         cells += `
           <td class="cell-static ${cls}${borderCls}">
-            <span class="static-tag">${staticVal}</span>
+            <div class="combined-tags">
+              <span class="static-tag">${breadthVal}</span>
+              <span class="combined-divider">·</span>
+              <span class="static-tag">${depthVal}</span>
+            </div>
             <div class="impact-btns">
-              <button class="impact-btn up" id="btn-up-${voteKey}" onclick="onImpactClick('${voteKey}', 'up', this)">▲ +</button>
+              <button class="impact-btn up"   id="btn-up-${voteKey}"   onclick="onImpactClick('${voteKey}', 'up', this)">▲ +</button>
               <button class="impact-btn down" id="btn-down-${voteKey}" onclick="onImpactClick('${voteKey}', 'down', this)">▼ −</button>
             </div>
           </td>`;
@@ -1283,9 +1280,15 @@ async function loadDashboard() {
     let cells = `<td><span class="lever-num">${lever.id}</span> <strong>${lever.emoji} ${lever.name}</strong></td>`;
     COLS.forEach((col, idx) => {
       const borderStyle = idx === 3 ? ' style="border-left:1.5px solid var(--border)"' : '';
-      if (col.static) {
-        const staticVal = lever[col.key];
-        cells += `<td${borderStyle}><span class="dash-pill pill-empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">${staticVal}</span></td>`;
+      if (col.static && col.combined) {
+        const prefix = col.group === "val" ? "val" : "feas";
+        const bVal = lever[prefix + "_breadth"];
+        const dVal = lever[prefix + "_depth"];
+        cells += `<td${borderStyle}>
+          <span class="dash-pill pill-empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">${bVal}</span>
+          <span style="color:#CBD5E1;margin:0 2px">·</span>
+          <span class="dash-pill pill-empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">${dVal}</span>
+        </td>`;
       } else {
         const cellRows = rows.filter(r => r.lever_id === lever.id && r.col_key === col.key && r.value);
         const mode = getMode(cellRows.map(r => r.value));
