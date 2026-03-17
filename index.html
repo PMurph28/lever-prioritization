@@ -1100,7 +1100,7 @@ const LEVERS = [
   { id: 4, name: "Skillset of the future",          emoji: "🎓", origin: "Mistral + FoW Lab",   val_breadth: "All processes",  val_depth: "Incremental",    feas_summary_static: "High",   feas_dependencies: "Low: Aligns to Butterfly & TranSCend post-deployment",      feas_risks: "Low: Regional variation may require local adaptation", feas_time: "Immediate: Competency models target Q2 2026"      },
   { id: 5, name: "Unified desktop w/ AI assistant", emoji: "🖥️", origin: "Mistral + Kearney",   val_breadth: "All processes",  val_depth: "Transformative", feas_summary_static: "Low",    feas_dependencies: "High: Butterfly CRM is backbone; KMS & TranSCend required", feas_risks: "High: Significant investment to customize JJCC/MSD into SPOG", feas_time: "Long-term: Desktop MVP targeted Q2 2027"         },
   { id: 6, name: "Centralized KMS",                 emoji: "📚", origin: "Mistral + Kearney",   val_breadth: "Most processes", val_depth: "Step-change",    feas_summary_static: "High",   feas_dependencies: "Moderate: Requires SharePoint/Confluence & Genesys integration", feas_risks: "Low: Weak governance could degrade KMS effectiveness", feas_time: "Immediate: Top 50 SOPs & Copilot target Q2–Q3 2026" },
-  { id: 7, name: "Dynamic routing",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most processes", val_depth: "Incremental",    feas_summary_static: "Medium", feas_dependencies: "High: Routing requires Genesys & Butterfly integration",    feas_risks: "Moderate: Misrouting risk if customer intent assessed incorrectly", feas_time: "Medium-term: Skill taxonomy & pilot target end Q3 2026" },
+  { id: 7, name: "Dynamic Routing and Capacity",                 emoji: "⚡", origin: "Mistral + Butterfly", val_breadth: "Most processes", val_depth: "Incremental",    feas_summary_static: "Medium", feas_dependencies: "High: Routing requires Genesys & Butterfly integration",    feas_risks: "Moderate: Misrouting risk if customer intent assessed incorrectly", feas_time: "Medium-term: Skill taxonomy & pilot target end Q3 2026" },
 ];
 
 const COLS = [
@@ -1217,8 +1217,8 @@ const SUMMARY_SORT = { "High": 0, "Medium": 1, "Low": 2 };
 
 const rankOrder = {
   val:  [...LEVERS].sort((a, b) => {
-    const aLabel = ["High","High","Medium","High","High","Medium","Low"][a.id - 1];
-    const bLabel = ["High","High","Medium","High","High","Medium","Low"][b.id - 1];
+    const aLabel = ["High","High","Medium","Low","High","Medium","High"][a.id - 1];
+    const bLabel = ["High","High","Medium","Low","High","Medium","High"][b.id - 1];
     return (SUMMARY_SORT[aLabel] ?? 1) - (SUMMARY_SORT[bLabel] ?? 1) || a.id - b.id;
   }).map(l => l.id),
   feas: [...LEVERS].sort((a, b) =>
@@ -1245,7 +1245,7 @@ function buildRankList(group) {
     const rank = idx + 1;
 
     const summaryLabel = isVal
-      ? ["High","High","Medium","High","High","Medium","Low"][lever.id - 1]
+      ? ["High","High","Medium","Low","High","Medium","High"][lever.id - 1]
       : lever.feas_summary_static;
 
     const tagClass = getRankTagClass(summaryLabel);
@@ -1622,7 +1622,7 @@ function drawMatrix(rows) {
     "Immediate": 3, "Medium-term": 2, "Long-term": 1
   };
   const staticLabels = {
-    val:  ["High","High","Medium","High","High","Medium","Low"],
+    val:  ["High","High","Medium","Low","High","Medium","High"],
     feas: LEVERS.map(l => l.feas_summary_static),
   };
 
