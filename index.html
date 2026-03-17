@@ -654,18 +654,10 @@
   .rank-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 
   .rank-item {
-    display: grid;
-    grid-template-columns: 90px 1fr 160px 160px 160px;
-    align-items: center; gap: 0;
     background: var(--white); border: 1.5px solid var(--border);
-    border-radius: 12px; padding: 10px 8px;
-    cursor: grab; user-select: none;
+    border-radius: 12px; overflow: hidden;
+    cursor: default; user-select: none;
     transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
-  }
-  .rank-item.feas-item {
-    grid-template-columns: 90px 220px 120px 1fr 1fr 1fr;
-    align-items: stretch;
-    padding: 14px 8px;
   }
   .rank-item.feas-item .rank-summary-tag {
     display: flex; align-items: center; justify-content: center;
@@ -679,18 +671,18 @@
   }
 
   /* Rank column cell — subtle highlight background */
-  .rank-item > div:first-child {
+  .rank-row-main > div:first-child {
     background: rgba(0,0,0,0.02);
     border-right: 1.5px solid var(--border);
     margin: -10px 0; padding: 10px 0;
-    border-radius: 10px 0 0 10px;
+    border-radius: 10px 0 0 0;
   }
-  .rank-item.feas-item > div:first-child {
+  .rank-item.feas-item .rank-row-main > div:first-child {
     display: flex; align-items: center; justify-content: center;
-    margin: -14px 0; padding: 14px 0;
+    margin: -10px 0; padding: 10px 0;
   }
-  .rank-item.val-item  > div:first-child { background: #FFF5F5; border-right-color: #FFD5D5; }
-  .rank-item.feas-item > div:first-child { background: #EFF7FF; border-right-color: #BFDBFE; }
+  .rank-item.val-item  .rank-row-main > div:first-child { background: #FFF5F5; border-right-color: #FFD5D5; }
+  .rank-item.feas-item .rank-row-main > div:first-child { background: #EFF7FF; border-right-color: #BFDBFE; }
 
   @keyframes rankPulse {
     0%   { transform: scale(1); }
@@ -731,7 +723,8 @@
   .drag-callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
   .drag-callout-text { font-size: 13px; color: #78350F; line-height: 1.5; }
   .drag-callout-text strong { font-weight: 800; }
-  .rank-item:active { cursor: grabbing; }
+  .rank-row-main { cursor: grab; }
+  .rank-item:active .rank-row-main { cursor: grabbing; }
   .rank-item.dragging {
     opacity: 0.4; border-color: var(--red);
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -815,6 +808,86 @@
   .rank-item.feas-item[data-rank="6"] .rank-badge,
   .rank-item.feas-item[data-rank="7"] .rank-badge,
   .rank-item.feas-item[data-rank="8"] .rank-badge { background: #94a3b8; }
+
+  /* ── DRILLDOWN PANEL ── */
+  .rank-row-main {
+    display: grid; align-items: center; gap: 0;
+    padding: 10px 8px; cursor: pointer; user-select: none;
+    transition: background 0.15s; position: relative;
+  }
+  .val-item  .rank-row-main { grid-template-columns: 90px 1fr 160px 160px 160px; }
+  .feas-item .rank-row-main { grid-template-columns: 90px 220px 120px 1fr 1fr 1fr; }
+  .rank-row-main:hover { background: #FAFBFC; }
+  .rank-item.expanded .rank-row-main { background: #FAFBFC; }
+
+  .dd-chevron {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 12px; color: var(--text-soft);
+    transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), color 0.15s;
+    line-height: 1; pointer-events: none;
+  }
+  .val-item.expanded  .dd-chevron { transform: translateY(-50%) rotate(180deg); color: var(--red); }
+  .feas-item.expanded .dd-chevron { transform: translateY(-50%) rotate(180deg); color: #0369a1; }
+
+  .dd-panel {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.38s cubic-bezier(0.22,1,0.36,1);
+  }
+  .rank-item.expanded .dd-panel { max-height: 900px; }
+  .val-item.expanded  .dd-panel { background: #FFFAFA; border-top: 1.5px dashed #FFD5D5; }
+  .feas-item.expanded .dd-panel { background: #F7FBFF; border-top: 1.5px dashed #BAE6FD; }
+
+  .dd-inner {
+    padding: 20px 24px 24px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+  }
+  .dd-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .dd-card.full  { grid-column: 1 / -1; }
+  .dd-card.two   { grid-column: span 2; }
+  .dd-card-label { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 8px; }
+  .dd-mission    { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.55; }
+
+  .dd-from-to  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dd-state    { padding: 10px 12px; border-radius: 8px; font-size: 12px; line-height: 1.5; }
+  .dd-state.now  { background: #FEF2F2; border: 1px solid #FEE2E2; }
+  .dd-state.next { background: #ECFDF5; border: 1px solid #D1FAE5; }
+  .dd-state-lbl  { font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+  .dd-state.now  .dd-state-lbl { color: #DC2626; }
+  .dd-state.next .dd-state-lbl { color: #059669; }
+  .dd-state-txt  { color: var(--text); font-weight: 500; }
+
+  .dd-bullets { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .dd-bullets li { font-size: 12px; color: var(--text); line-height: 1.5; padding-left: 14px; position: relative; font-weight: 500; }
+  .dd-bullets li::before { content: "→"; position: absolute; left: 0; color: var(--red); font-weight: 700; font-size: 11px; }
+
+  .dd-dep-list  { display: flex; flex-direction: column; gap: 10px; }
+  .dd-dep-row   { display: flex; align-items: flex-start; gap: 10px; }
+  .dd-dep-badge { flex-shrink: 0; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; border: 1.5px solid; margin-top: 1px; }
+  .dd-dep-badge.high     { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+  .dd-dep-badge.moderate { background: #FEF3C7; color: #78350F; border-color: #FCD34D; }
+  .dd-dep-badge.low      { background: #D1FAE5; color: #065F46; border-color: #6EE7B7; }
+  .dd-dep-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .dd-dep-desc { font-size: 11px; color: var(--text-soft); line-height: 1.4; }
+
+  .dd-risk-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 10px; border: 1.5px solid; }
+  .dd-risk-badge.high     { background: #FEE2E2; color: #991B1B; border-color: #FCA5A5; }
+  .dd-risk-badge.moderate { background: #FEF3C7; color: #78350F; border-color: #FCD34D; }
+  .dd-risk-badge.low      { background: #D1FAE5; color: #065F46; border-color: #6EE7B7; }
+  .dd-risk-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .dd-risk-list li { font-size: 11px; color: var(--text-soft); line-height: 1.45; padding-left: 12px; position: relative; }
+  .dd-risk-list li::before { content: "•"; position: absolute; left: 0; color: #94a3b8; }
+
+  .dd-ms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dd-ms-group-lbl { font-size: 9px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
+  .dd-ms-group-lbl.quick  { color: var(--red); }
+  .dd-ms-group-lbl.steady { color: #1d4ed8; }
+  .dd-ms-row  { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .dd-ms-row:last-child { margin-bottom: 0; }
+  .dd-ms-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .dd-ms-dot.quick  { background: var(--red); }
+  .dd-ms-dot.steady { background: #1d4ed8; }
+  .dd-ms-text   { font-size: 11px; color: var(--text); font-weight: 500; line-height: 1.45; }
+  .dd-ms-target { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
   .group-tabs {
     display: flex; gap: 0; margin-bottom: 20px;
     background: var(--white); border: 1.5px solid var(--border);
@@ -1106,6 +1179,90 @@ const LEVERS = [
   { id: 8, name: "KPI-Oriented Performance Mgmt",        emoji: "📊", origin: "Mistral + FoW Lab",   val_breadth: "All processes",  val_depth: "Step-change",    feas_summary_static: "High",   feas_dependencies: "Moderate: CRM & Genesys data primary source for metrics",   feas_risks: "Moderate: Misaligned incentives could reduce CSR morale", feas_time: "Immediate: Global KPI framework target Q2 2026" },
 ];
 
+// ── DRILLDOWN CONTENT ────────────────────────────────────────────────────────
+const DRILLDOWN = {
+  1: {
+    mission: "Build voice & email-based AI agents to resolve simple inquiry types (esp. manual standard orders & order status checks) prior to CSR escalation.",
+    now: "Despite order automation progress, all inbound queries routed to human CSRs — ~50% of manual orders single-item, ~50% of order status inquiries simple checks.",
+    future: "AI agents handle structured, repeatable inquiries end-to-end across voice & email, escalating only when complexity or risk thresholds are met.",
+    impact: ["~40–60% of order status & standard orders resolved without human intervention","CSR capacity relief on highest-volume queues, freeing time for complex cases (returns, disputes)"],
+    deps: [{lvl:"moderate",name:"Butterfly",desc:"Bot can operate via email & telephony first, but full resolution requires CRM \"write\" capabilities"},{lvl:"moderate",name:"TranSCend",desc:"Need authoritative data to \"read\" & ability to \"write\" to middleware data layer"},{lvl:"high",name:"Other Systems",desc:"JJCC APIs, Genesys bot/IVR integration, KMS, authentication & escalation-to-agent handoff"}],
+    riskLvl:"moderate", risk:["Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on business/tech resources","Limited AI build & deployment experience; build vs. buy decision is a key factor to resourcing"],
+    quick:[{text:"NA: MVP AI agent in Genesys — order status & standard order creation (\"human-in-the-loop\" pending TranSCend)",target:"End Q4 2026"},{text:"EMEA/LATAM: MVP AI agent in Genesys — order status & standard order creation",target:"End Q2 2027"}],
+    steady:[{text:"Global voice & email AI agent with expanded coverage; \"read\" from ERP, CM, KMS",target:"Q3 2027"},{text:"\"Write\" enablement to middleware data layer w/o human involvement",target:"Q3 2028"}]
+  },
+  2: {
+    mission: "Activate predictive notifications & event-triggered outbound engagements (shipment delays, invoice discrepancies) to prevent avoidable inbound contact demand before it reaches CSR queues.",
+    now: "Customers not proactively updated for orders or invoice-related delays — issues discovered reactively & result in manual CSR servicing (~10% of CSR time on order status across regions).",
+    future: "Automated outbound notifications triggered by logistics events keep customers informed in real time, reducing inbound inquiry volume.",
+    impact: ["~40–60% reduction in avoidable inbound contacts on delays, shipments & invoices","Improved customer experience — informed proactively before issue is raised","CSR capacity relief on highest-volume queues, freeing time for complex cases"],
+    deps: [{lvl:"moderate",name:"TranSCend",desc:"Need to \"read\" accurate order/shipment/event data from ERPs; can leverage existing integrations in interim"},{lvl:"moderate",name:"Other Systems",desc:"Must integrate with email & chat, Genesys, middleware, customer master incl. preference & consent mgmt."},{lvl:"moderate",name:"Butterfly",desc:"Outbound comms orchestration & case updates should align to future CRM workflow"}],
+    riskLvl:"high", risk:["Concurrent execution of JJCC, Butterfly, TranSCend creates pressure on biz./tech resources","Dependency on existing GCS IT bandwidth & resourcing incl. concurrent JJCC/ERP/CRM changes","Improvement required in accuracy of existing customer prediction models (PAC, STEM)"],
+    quick:[{text:"Standardize lifecycle communication timing & templates for order confirmation & delay alerts",target:"Q2 2026"},{text:"NA/LATAM shipment delay pilot — outbound email notifications on delayed dispatches",target:"Q3 2026"}],
+    steady:[{text:"Global outbound notification coverage across order, shipment & invoice event types",target:"Q2 2027"},{text:"AI-driven preemptive outreach with customized notifications based on order/inquiry history",target:"Q3 2027"}]
+  },
+  3: {
+    mission: "Improve OCR accuracy & enforce structured EDI validation rules to reduce order \"kick-outs\" & manual remediation effort across the order intake process.",
+    now: "High rates of OCR misread & EDI validation failures generate large volumes of manual order remediation work & customer delays. No mechanism to triage OTI defects.",
+    future: "Root cause issues in the OTI process are identified & resolved, eliminating upstream errors that generate the highest-volume CSR queues.",
+    impact: ["Estimated 30–50% reduction in OTI-driven inbound contacts on certain exception types","Measurable reduction in manual CSR rework, redirecting time to higher-complexity interactions","Improves data integrity & reduces error rate when feeding AI agents & Proactive Comms"],
+    deps: [{lvl:"low",name:"Butterfly",desc:"OTI defect fixes only affect case management & process flows not dependent on Butterfly"},{lvl:"high",name:"TranSCend",desc:"Most OTI defects originate or pass through SAP/JDE — TranSCend standardizes ERP-layer data integrity"},{lvl:"high",name:"Other Systems",desc:"Requires remediation of OCR systems, EDI tools & order intake processes"}],
+    riskLvl:"low", risk:["Modular build for OTI defects can reduce execution risk if executed correctly","Dependency on customer education and on commercial & SCCS alignment"],
+    quick:[{text:"Standardize & fix Esker (Einstein prediction engine) to improve manual order intake",target:"Q3 2026"},{text:"Targeted remediation of 3 high-volume defect types identified in AI transcript analysis",target:"Q3 2026"}],
+    steady:[{text:"Formal OTI defect review cadence & business analytics layer in Qualtrics",target:"Q3 2026"},{text:"Remediation of all priority-tier & non-priority OTI defects",target:"Q4 2026 – Q3 2027"}]
+  },
+  4: {
+    mission: "Establish a global CSR capability model & skilling program emphasizing business context awareness, digital-first handling & automation readiness — elevating productivity & accelerating adoption of new digital tools.",
+    now: "Variable CSR capability levels within regions, long ramp-up time for new agents, & missed opportunities to drive customer adoption of self-service (e.g. JJCC). >100% variance in AHT across select inquiry types.",
+    future: "Globally consistent competency model defining what \"great\" looks like, with standardized onboarding & continuous upskilling ready for an AI age.",
+    impact: ["Reduction in new agent ramp time through standardized onboarding curriculum","Effective use of high-value technology levers (e.g. unified desktop with AI agent)","Greater penetration of self-service & automation due to agent-driven adoption"],
+    deps: [{lvl:"low",name:"Butterfly",desc:"Competency model & handling standards must align to new CRM systems as Butterfly rolls out"},{lvl:"low",name:"TranSCend",desc:"Final enablement must reflect TranSCend changes to process templates"},{lvl:"low",name:"Other Systems",desc:"Alignment to future SAP process templates required for ERP-related handling standards"}],
+    riskLvl:"low", risk:["Skillsets required may have regional variation due to local culture, practices & systems","Skillset of the future may cause changes in performance for reps in the interim"],
+    quick:[{text:"Global competency model defined for traditional CSRs by role/work type with new assessment & KPI rubric",target:"Q2 2026"},{text:"Global competency model defined for CSR supervisors with coaching expectations",target:"Q2 2026"}],
+    steady:[{text:"Expanded model for all frontline CS roles with AI transcript & sentiment analysis pilot",target:"Q3 2026"},{text:"AI coaching integrated with global upskilling program — daily feedback on CSR cases",target:"Q4 2027 (dependent on success of AI in KMS system)"}]
+  },
+  5: {
+    mission: "Deploy a single, integrated CSR desktop consolidating views from CRM, order management & case data into one interface augmented by an AI assistant that surfaces real-time guidance, suggested responses & next-best actions during live interactions.",
+    now: "CSRs navigate 4–8 disconnected systems per interaction, increasing AHT due to toggling time & manual data triaging. No single pane of glass.",
+    future: "A unified desktop gives every CSR a single, context-aware workplace with AI tools proactively surfacing the right info at every moment of the interaction.",
+    impact: ["Reduce AHT by 30–60% on multi-system cases (order exceptions, returns, disputes)","Measurable FCR improvement as AI assistant reduces knowledge gaps on escalated cases","Key enabler for Levers 1, 2 & 7 by surfacing everything within a unified desktop layer"],
+    deps: [{lvl:"high",name:"Butterfly",desc:"New CRM is the backbone of the unified desktop with UX & back-end built on MSD configuration"},{lvl:"high",name:"TranSCend",desc:"Order data, shipment & other ERP data must integrate reliably into the single pane of glass"},{lvl:"high",name:"Other Systems",desc:"AI assistant requires a globally governed knowledge layer (KMS) to draw know-how from"}],
+    riskLvl:"high", risk:["Concurrent execution against Butterfly, TranSCend & KMS places pressure on business/tech resources","Significant investment & resources needed to customize existing tools (JJCC/MSD) into a SPOG"],
+    quick:[{text:"NA: Complete functional requirements for unified desktop UX, data integrations & AI assistant scope",target:"Q2 2026"},{text:"Deploy MSFT Copilot as a widget in Salesforce as proof of concept",target:"Q3 2026"}],
+    steady:[{text:"NA: Unified desktop MVP — single pane with CRM, order management, case history & KMS integration",target:"Q2 2027"},{text:"Global desktop rollout across all hubs & regions with localized data & language",target:"Q3 2028"}]
+  },
+  6: {
+    mission: "Globally governed knowledge management system, consolidating SOPs & other knowledge assets into a governed, searchable global system — surfacing a single source of truth in real time within agent workflows.",
+    now: "Fragmented, siloed & often lost knowledge across teams — tribal know-how, no content lifecycle or governance, excess AHT driven by data triage across fragmented knowledge repos.",
+    future: "Single source of truth surfaced in real time within agent workflows across all support channels, with accelerated onboarding & measurable AHT reduction via AI-surfaced in-call knowledge search.",
+    impact: ["~10–20% reduction in knowledge lookup time on complex case types","~20–40% reduction in new agent time-to-proficiency by replacing tribal knowledge with structured content","Key enabler for highest-value AI levers (Levers 1 & 4) — both degrade without governed knowledge assets"],
+    deps: [{lvl:"low",name:"Butterfly",desc:"Primarily process/content — ERP only matters for embedded \"how-to\" aligned to future processes"},{lvl:"low",name:"TranSCend",desc:"Limited impact if KMS can be built in modular fashion & embedded in the new CRM UI later"},{lvl:"moderate",name:"Other Systems",desc:"Requires integration with existing repositories (SharePoint/Confluence) & Genesys"}],
+    riskLvl:"low", risk:["Weak governance around source of truth could degrade KMS effectiveness over time","High regional variation in systems, processes, languages & culture could multiply KMS needs","Limited AI build & deployment experience; build vs. buy decision is a key factor"],
+    quick:[{text:"Consolidation of top 50 SOPs & FAQ sources into tagged & searchable knowledge base",target:"Q2 2026"},{text:"Deployment of MSFT Copilot as interim front-end for consolidated repository in Prague & Bogota hubs",target:"End Q3 2026"}],
+    steady:[{text:"Expansion to full global scope of agent knowledge (SOPs, FAQs, guides, playbooks)",target:"Q4 2026"},{text:"Multilingual knowledge base with regional overlays for priority languages (top 5 markets by contact revenue)",target:"Q2 2027"},{text:"AI-assisted integration of KMS into single pane of glass (Lever 5)",target:"Q3 2027"}]
+  },
+  7: {
+    mission: "Deploy intelligent customer & CSR-skill based routing as well as predictive & real-time capacity balancing across CSR queues to match inbound contact demand to the right agent across all channels & availabilities.",
+    now: "Routing logic is largely static & siloed by region — queues overflow without visibility, creating uneven workload distribution, demand spikes in one region while capacity sits idle in another.",
+    future: "Intelligent, attribute-based routing dynamically assigns the best-available CSR in real time, with surge protocols preventing SLA breaches automatically.",
+    impact: ["~10–20% improvement in first contact resolution rate by reducing escalation complexity","~15–20% decrease in AHT due to pre-case visibility of customer intent & attributes","Intent & attribute routing logic is a structural pre-requisite for AI agent triaging (Lever 1)"],
+    deps: [{lvl:"moderate",name:"Butterfly",desc:"Dependent on Butterfly taxonomy & case ownership structure; routing logic can be built in Genesys first"},{lvl:"low",name:"TranSCend",desc:"Indirect dependency — TranSCend stabilization improves data reliability for order-type routing triggers"},{lvl:"high",name:"Other Systems",desc:"Routing primarily in Genesys, requiring integration with Butterfly to achieve full stability"}],
+    riskLvl:"moderate", risk:["Incorrect assessment of customer \"value\" or \"intent\" could anger customers if routed incorrectly","Low number of cross-skilled agents require high amount of additional training for solution to scale"],
+    quick:[{text:"Define global agent skills taxonomy & map to Genesys queue structure across all hubs",target:"End Q3 2026"},{text:"Deploy pilot of dynamic live capacity & queue load balancing with manual intervention",target:"End Q3 2026"}],
+    steady:[{text:"AI control tower for automatic & predictive cross-queue load distribution based on historical trends",target:"Q1 2027"},{text:"Global deployment of routing logic based on customer intent & attributes",target:"Q2 2027"}]
+  },
+  8: {
+    mission: "Implement a standardized global KPI spine (AHT, resolution rate, repeat contacts) with consistent metric definitions, a corresponding incentive structure & performance review structure across all JJMT hubs.",
+    now: "Performance & incentives vary by region, hub & team — no globally consistent KPIs, making benchmarking & reporting unreliable. Lack of specificity in incentives reduces CSR motivation.",
+    future: "A unified KPI framework gives every CSR & supervisor visibility into performance against targets, unifies objectives & enables precise measurement of value creation.",
+    impact: ["Estimated 10–15% improvement in productivity & resolution metrics (AHT, FCR) driven by coaching cadence & real-time performance visibility","Enables precise measurement of value creation against a unified goal","Provides reporting backbone for stakeholder governance across all hubs/regions"],
+    deps: [{lvl:"moderate",name:"Butterfly",desc:"CRM & Genesys data is the main info source for metrics; can be done in SFDC first, then migrated to MSD"},{lvl:"low",name:"TranSCend",desc:"Limited relevance to ERP systems"},{lvl:"low",name:"Other Systems",desc:"Limited relevance to other JJMT CS systems excluding a light HR & business analytics layer"}],
+    riskLvl:"moderate", risk:["Risk of misalignment of incentive structure & CSR needs, resulting in low morale & motivation","Osprey separation could harm retention of higher-performing reps"],
+    quick:[{text:"Define global KPI framework (AHT, FCR, SLA, CSAT, sentiment) with region-specific targets",target:"Q2 2026"},{text:"Define pilot bonus/target structure for CSRs, tested on outsourced APAC reps",target:"Q2–Q3 2026"}],
+    steady:[{text:"Full KPI framework dashboard with consolidated hubs, regional & global view in Qualtrics/PowerBI",target:"Q4 2026"},{text:"Structured weekly & monthly coaching for supervisors & CSRs based on formal KPIs",target:"Q1 2027"},{text:"Ongoing cross-hub performance benchmarking with structured improvement planning",target:"Q3 2026 – Q3 2027"}]
+  }
+};
+
 const COLS = [
   { key: "val_summary",      label: "Value Summary",       group: "val",  static: false },
   { key: "val_breadth_depth",label: "Breadth & Depth",     group: "val",  static: true, combined: true },
@@ -1279,25 +1436,65 @@ function buildRankList(group) {
            <span class="rank-bd-desc">${lever.feas_time.split(':').slice(1).join(':').trim()}</span>
          </div>`;
 
+    const dd = DRILLDOWN[lever.id];
+
+    // Build drilldown HTML based on group
+    const ddHTML = isVal ? `
+      <div class="dd-card full"><div class="dd-card-label">Mission</div><div class="dd-mission">${dd.mission}</div></div>
+      <div class="dd-card two"><div class="dd-card-label">Current State → Future State</div><div class="dd-from-to">
+        <div class="dd-state now"><div class="dd-state-lbl">Now</div><div class="dd-state-txt">${dd.now}</div></div>
+        <div class="dd-state next"><div class="dd-state-lbl">Future</div><div class="dd-state-txt">${dd.future}</div></div>
+      </div></div>
+      <div class="dd-card"><div class="dd-card-label">Impact</div><ul class="dd-bullets">${dd.impact.map(i => `<li>${i}</li>`).join("")}</ul></div>`
+    : `
+      <div class="dd-card two"><div class="dd-card-label">Dependencies</div><div class="dd-dep-list">${dd.deps.map(d => `
+        <div class="dd-dep-row"><span class="dd-dep-badge ${d.lvl}">${d.lvl.charAt(0).toUpperCase()+d.lvl.slice(1)}</span><div><div class="dd-dep-name">${d.name}</div><div class="dd-dep-desc">${d.desc}</div></div></div>`).join("")}
+      </div></div>
+      <div class="dd-card"><div class="dd-card-label">Execution Risk</div>
+        <div class="dd-risk-badge ${dd.riskLvl}">${dd.riskLvl === "high" ? "⚠" : dd.riskLvl === "low" ? "✓" : "⚠"} ${dd.riskLvl.charAt(0).toUpperCase()+dd.riskLvl.slice(1)}</div>
+        <ul class="dd-risk-list">${dd.risk.map(r => `<li>${r}</li>`).join("")}</ul>
+      </div>
+      <div class="dd-card full"><div class="dd-card-label">Key Milestones</div><div class="dd-ms-grid">
+        <div><div class="dd-ms-group-lbl quick">Quick Wins</div>${dd.quick.map(m => `<div class="dd-ms-row"><div class="dd-ms-dot quick"></div><div><div class="dd-ms-text">${m.text}</div><div class="dd-ms-target">Target: ${m.target}</div></div></div>`).join("")}</div>
+        <div><div class="dd-ms-group-lbl steady">Steady State</div>${dd.steady.map(m => `<div class="dd-ms-row"><div class="dd-ms-dot steady"></div><div><div class="dd-ms-text">${m.text}</div><div class="dd-ms-target">Target: ${m.target}</div></div></div>`).join("")}</div>
+      </div></div>`;
+
     item.innerHTML = `
-      <div style="text-align:center">
-        <span class="rank-badge">${rank}</span>
-      </div>
-      <div class="rank-lever-info">
-        <span style="font-size:20px">${lever.emoji}</span>
-        <div>
-          <div class="rank-lever-name">${lever.name}</div>
-          <div class="rank-lever-origin">${lever.origin}</div>
+      <div class="rank-row-main">
+        <div style="text-align:center">
+          <span class="rank-badge">${rank}</span>
         </div>
+        <div class="rank-lever-info">
+          <span style="font-size:20px">${lever.emoji}</span>
+          <div>
+            <div class="rank-lever-name">${lever.name}</div>
+            <div class="rank-lever-origin">${lever.origin}</div>
+          </div>
+        </div>
+        <div class="rank-summary-tag">
+          <span class="rank-tag ${tagClass}">${summaryLabel}</span>
+        </div>
+        ${detailCols}
+        <span class="dd-chevron">▾</span>
       </div>
-      <div class="rank-summary-tag">
-        <span class="rank-tag ${tagClass}">${summaryLabel}</span>
-      </div>
-      ${detailCols}`;
+      <div class="dd-panel"><div class="dd-inner">${ddHTML}</div></div>`;
+
+    // ── Drilldown toggle ──
+    const rowMain = item.querySelector(".rank-row-main");
+    rowMain.addEventListener("click", () => {
+      item.classList.toggle("expanded");
+    });
 
     // ── Drag events ──
     item.addEventListener("dragstart", e => {
+      // Force-close drilldown immediately so drag ghost is row-only
+      item.classList.remove("expanded");
+      // Anchor ghost at the actual cursor position within the row
+      const rect = rowMain.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left;
+      const offsetY = e.clientY - rect.top;
       e.dataTransfer.setData("text/plain", leverId);
+      e.dataTransfer.setDragImage(rowMain, offsetX, offsetY);
       setTimeout(() => item.classList.add("dragging"), 0);
     });
     item.addEventListener("dragend", () => {
