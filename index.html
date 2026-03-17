@@ -373,24 +373,25 @@
   }
   .status-dot.done { background: var(--green); transform: scale(1.2); }
 
-  /* Color coding for selected values — 4 visually distinct tiers */
-  /* Tier 1: Very high / Org wide / All processes — deep green */
-  .lever-select[data-val="Very high"]     { border-color: #059669; background: #D1FAE5; color: #064E3B; font-weight: 700; }
-  /* Tier 2: High / Most teams / Most processes — blue */
-  .lever-select[data-val="High"]          { border-color: #2563EB; background: #DBEAFE; color: #1E3A8A; font-weight: 700; }
-  /* Tier 3: Medium / Less than half — amber */
-  .lever-select[data-val="Medium"]        { border-color: #D97706; background: #FEF3C7; color: #78350F; font-weight: 700; }
-  /* Tier 4: Low / Few people / Few processes — red */
-  .lever-select[data-val="Low"]           { border-color: #DC2626; background: #FEE2E2; color: #7F1D1D; font-weight: 700; }
+  /* Color coding for selected values — border only, no background fill */
+  .lever-select[data-val="Very High Value"] { border-color: #059669; border-width: 2px; }
+  .lever-select[data-val="High Value"]      { border-color: #2563EB; border-width: 2px; }
+  .lever-select[data-val="Medium Value"]    { border-color: #D97706; border-width: 2px; }
+  .lever-select[data-val="Low Value"]       { border-color: #DC2626; border-width: 2px; }
 
-  .lever-select[data-val="Org wide"]      { border-color: #059669; background: #D1FAE5; color: #064E3B; font-weight: 700; }
-  .lever-select[data-val="Most teams"]    { border-color: #2563EB; background: #DBEAFE; color: #1E3A8A; font-weight: 700; }
-  .lever-select[data-val="Less than half"]{ border-color: #D97706; background: #FEF3C7; color: #78350F; font-weight: 700; }
-  .lever-select[data-val="Few people"]    { border-color: #DC2626; background: #FEE2E2; color: #7F1D1D; font-weight: 700; }
+  .lever-select[data-val="Immediate"]       { border-color: #059669; border-width: 2px; }
+  .lever-select[data-val="Short-term"]      { border-color: #2563EB; border-width: 2px; }
+  .lever-select[data-val="Medium-term"]     { border-color: #D97706; border-width: 2px; }
+  .lever-select[data-val="Long-term"]       { border-color: #DC2626; border-width: 2px; }
 
-  .lever-select[data-val="All processes"] { border-color: #059669; background: #D1FAE5; color: #064E3B; font-weight: 700; }
-  .lever-select[data-val="Most processes"]{ border-color: #2563EB; background: #DBEAFE; color: #1E3A8A; font-weight: 700; }
-  .lever-select[data-val="Few processes"] { border-color: #DC2626; background: #FEE2E2; color: #7F1D1D; font-weight: 700; }
+  .lever-select[data-val="Org wide"]        { border-color: #059669; border-width: 2px; }
+  .lever-select[data-val="Most teams"]      { border-color: #2563EB; border-width: 2px; }
+  .lever-select[data-val="Less than half"]  { border-color: #D97706; border-width: 2px; }
+  .lever-select[data-val="Few people"]      { border-color: #DC2626; border-width: 2px; }
+
+  .lever-select[data-val="All processes"]   { border-color: #059669; border-width: 2px; }
+  .lever-select[data-val="Most processes"]  { border-color: #2563EB; border-width: 2px; }
+  .lever-select[data-val="Few processes"]   { border-color: #DC2626; border-width: 2px; }
 
   /* Save status */
   .save-toast {
@@ -820,17 +821,18 @@ const LEVERS = [
   { id: 7, name: "Dynamic routing",              emoji: "⚡", desc: "Intelligently route contacts based on skill-based matching; dynamically manage load", origin: "Mistral + Butterfly" },
 ];
 
-const SUMMARY_OPTS = ["Very high", "High", "Medium", "Low"];
+const VAL_SUMMARY_OPTS  = ["Very High Value", "High Value", "Medium Value", "Low Value"];
+const FEAS_SUMMARY_OPTS = ["Immediate", "Short-term", "Medium-term", "Long-term"];
 const BREADTH_OPTS = ["Org wide", "Most teams", "Less than half", "Few people"];
 const DEPTH_OPTS   = ["All processes", "Most processes", "Less than half", "Few processes"];
 
 const COLS = [
-  { key: "val_summary",   label: "Summary",          opts: SUMMARY_OPTS, group: "val" },
-  { key: "val_breadth",   label: "Breadth of Impact", opts: BREADTH_OPTS, group: "val" },
-  { key: "val_depth",     label: "Depth of Impact",   opts: DEPTH_OPTS,   group: "val" },
-  { key: "feas_summary",  label: "Summary",           opts: SUMMARY_OPTS, group: "feas" },
-  { key: "feas_breadth",  label: "Breadth of Impact", opts: BREADTH_OPTS, group: "feas" },
-  { key: "feas_depth",    label: "Depth of Impact",   opts: DEPTH_OPTS,   group: "feas" },
+  { key: "val_summary",   label: "Summary",           opts: VAL_SUMMARY_OPTS,  group: "val" },
+  { key: "val_breadth",   label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "val" },
+  { key: "val_depth",     label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "val" },
+  { key: "feas_summary",  label: "Summary",            opts: FEAS_SUMMARY_OPTS, group: "feas" },
+  { key: "feas_breadth",  label: "Breadth of Impact",  opts: BREADTH_OPTS,      group: "feas" },
+  { key: "feas_depth",    label: "Depth of Impact",    opts: DEPTH_OPTS,        group: "feas" },
 ];
 
 let currentUser = "";
@@ -1115,7 +1117,10 @@ async function loadDashboard() {
   document.getElementById("stat-completion").textContent = avgCompletion + "%";
 
   // Top lever by value_summary consensus
-  const summaryScore = { "Very high": 4, "High": 3, "Medium": 2, "Low": 1 };
+  const summaryScore = {
+    "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1,
+    "Immediate": 4, "Short-term": 3, "Medium-term": 2, "Long-term": 1
+  };
   const leverScores = LEVERS.map(l => {
     const valRows = rows.filter(r => r.lever_id === l.id && r.col_key === "val_summary" && r.value);
     const score = valRows.reduce((s, r) => s + (summaryScore[r.value] || 0), 0) / (valRows.length || 1);
@@ -1177,10 +1182,13 @@ function getMode(arr) {
 function getPillClass(val) {
   if (!val) return "pill-empty";
   const map = {
-    "Very high": "pill-veryhigh", "High": "pill-high", "Medium": "pill-medium", "Low": "pill-low",
-    "Org wide": "pill-orgwide", "Most teams": "pill-mostteams",
-    "Less than half": "pill-lessthan", "Few people": "pill-few",
-    "All processes": "pill-orgwide", "Most processes": "pill-mostteams",
+    "Very High Value": "pill-veryhigh", "High Value": "pill-high",
+    "Medium Value": "pill-medium",      "Low Value": "pill-low",
+    "Immediate": "pill-veryhigh",       "Short-term": "pill-high",
+    "Medium-term": "pill-medium",       "Long-term": "pill-low",
+    "Org wide": "pill-orgwide",         "Most teams": "pill-mostteams",
+    "Less than half": "pill-lessthan",  "Few people": "pill-few",
+    "All processes": "pill-orgwide",    "Most processes": "pill-mostteams",
     "Few processes": "pill-few"
   };
   return map[val] || "pill-empty";
@@ -1202,7 +1210,10 @@ function drawMatrix(rows) {
   const PAD = 64; // space for axis labels
   const INNER = W - PAD * 2;
 
-  const scoreMap = { "Very high": 4, "High": 3, "Medium": 2, "Low": 1 };
+  const scoreMap = {
+    "Very High Value": 4, "High Value": 3, "Medium Value": 2, "Low Value": 1,
+    "Immediate": 4, "Short-term": 3, "Medium-term": 2, "Long-term": 1
+  };
 
   // Compute avg val_summary and feas_summary per lever
   const leverPoints = LEVERS.map(l => {
